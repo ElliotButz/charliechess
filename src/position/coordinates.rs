@@ -1,10 +1,13 @@
+use strum_macros::EnumIter; // 0.17.1
+
+#[derive(Eq, Hash, PartialEq)]
 pub struct Coords {
     col: Column,
     row: Row,
 }
 
-#[derive(EnumIter)]
-enum Row {
+#[derive(EnumIter, PartialEq)]
+pub enum Row {
     R1,
     R2,
     R3,
@@ -15,8 +18,8 @@ enum Row {
     R8,
 }
 
-#[derive(EnumIter)]
-enum Column{
+#[derive(EnumIter, PartialEq)]
+pub enum Column{
     A,
     B,
     C,

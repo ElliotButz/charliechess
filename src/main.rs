@@ -1,5 +1,7 @@
-use crate::position::board
+pub mod position;
+use crate::position::board::Board;
+
 
 fn main() {
-    println!("Hello, world!");
+    let board = Board::new();
 }

@@ -5,7 +5,7 @@ pub struct Piece {
     kind: PieceKind,
 }
 
-pub impl Piece {
+impl Piece {
     pub fn new(color: Color, kind: PieceKind) -> Piece {
         Piece {color, kind}
     }

@@ -1,4 +1,4 @@
 pub enum Color {
-    white,
-    black,
+    White,
+    Black,
 }
