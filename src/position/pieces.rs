@@ -1,5 +1,6 @@
 use crate::position::color::Color; 
 
+#[derive(Clone, Copy)]
 pub struct Piece {
     color: Color,
     kind: PieceKind,
@@ -12,6 +13,7 @@ impl Piece {
 
 }
 
+#[derive(Clone, Copy)]
 pub enum PieceKind {
     Queen,
     Tower,
