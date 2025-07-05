@@ -1,19 +1,19 @@
 use strum_macros::EnumIter;
 
+#[macro_export]
+macro_rules! coords {
+    ($col:ident, $row:ident) => {
+        Coords {
+            col: $col,
+            row: $row,
+        }
+    };
+}
+
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Coords {
     pub col: Column,
     pub row: Row,
-}
-
-#[macro_export]
-macro_rules! coord {
-    ($col:ident, $row:ident) => {
-        Coords {
-            col: Column::$col,
-            row: Row::$row,
-        }
-    };
 }
 
 #[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy)]
