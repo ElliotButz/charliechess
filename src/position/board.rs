@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 use strum::IntoEnumIterator;
+use colored::{ColoredString, Colorize};
+
 
 use crate::{coords, piece};
-use crate::position::color::Color::{White, Black};
-use crate::position::coordinates::{Coords, Row::*, Column, Column::*};
+use crate::position::color::{Color,Color::{White, Black}};
+use crate::position::coordinates::{Coords, Row, Row::*, Column, Column::*};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Coords,Piece>;
@@ -57,6 +59,32 @@ impl Board { // Requesters
 impl Board { // Editors
     pub fn add_piece_at_coords(&mut self,  coords: Coords, piece: Piece) {
         self.map.insert(coords, piece);
-        ()
+    }
+}
+
+
+impl Board {
+    pub fn terminal_display(&self) {
+
+        let mut board_str = String::from("");
+        for row in Row::iter(){
+            for col in Column::iter(){
+
+                let case_color:Color = coords!(col, row).get_color();
+                let piece_char = match &self.piece_at_coords(coords!(col, row)) {
+                    Some(piece_at_pos) => piece_at_pos.kind_as_char(),
+                    None => ' '
+                };
+                let piece_str = String::from(piece_char);
+                let piece_on_case_str: ColoredString = match case_color {
+                    White => piece_str.on_color("white"),
+                    Black => piece_str.on_color("grey")
+                };
+                board_str.push_str(&piece_on_case_str);
+            }
+            board_str.push('\n');
+
+        }
+        println!("{}",board_str);
     }
 }
