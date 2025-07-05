@@ -16,7 +16,7 @@ pub struct Board {
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
-        return Board { map: BoardMap::with_capacity(64) }
+        Board { map: BoardMap::with_capacity(64) }
     }
 
     pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator
@@ -46,7 +46,7 @@ impl Board { // Initiators and init helpers
             piece_at_coords.insert(coords!(col, R1), piece!(White, major_piece_kind)); // White major pieces
 
         };
-        return piece_at_coords
+        piece_at_coords
     }
 }
 
@@ -66,7 +66,7 @@ impl Board { // Editors
 impl Board {
     pub fn terminal_display(&self) {
 
-        let mut board_str = String::from("");
+        let mut board_str = String::from(".  .  .  .  .  .  .  .  .\n");
         for row in Row::iter(){
             for col in Column::iter(){
 
@@ -80,10 +80,11 @@ impl Board {
                     White => piece_str.on_color("white"),
                     Black => piece_str.on_color("grey")
                 };
+                board_str.push_str(".");
                 board_str.push_str(&piece_on_case_str);
+                board_str.push_str(" ");
             }
-            board_str.push('\n');
-
+            board_str.push_str(".\n");
         }
         println!("{}",board_str);
     }
