@@ -6,6 +6,16 @@ pub struct Coords {
     pub row: Row,
 }
 
+#[macro_export]
+macro_rules! coord {
+    ($col:ident, $row:ident) => {
+        Coords {
+            col: Column::$col,
+            row: Row::$row,
+        }
+    };
+}
+
 #[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum Row {
     R1=1,
