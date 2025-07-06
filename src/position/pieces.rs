@@ -22,7 +22,7 @@ impl Piece {
         Piece {color, kind}
     }
 
-    pub fn kind_as_char(&self) -> char {
+    pub fn as_char(&self) -> char {
         let (kind, color) = (self.kind, self.color);
         match (kind, color) {
             (PieceKind::Queen,  Color::Black) => '\u{265B}',
@@ -50,5 +50,15 @@ pub enum PieceKind {
     Knight,
     Pawn,
     King,
+}
+
+struct King{
+    pub has_moved:bool
+}
+
+impl King {
+    pub fn new() -> Self {
+        King {has_moved: false}
+    } 
 }
 

@@ -72,7 +72,7 @@ impl Board {
 
                 let case_color:Color = coords!(col, row).get_color();
                 let piece_char = match &self.piece_at_coords(coords!(col, row)) {
-                    Some(piece_at_pos) => piece_at_pos.kind_as_char(),
+                    Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };
                 let piece_str = String::from(piece_char);
