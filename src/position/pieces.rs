@@ -51,14 +51,3 @@ pub enum PieceKind {
     Pawn,
     King,
 }
-
-struct King{
-    pub has_moved:bool
-}
-
-impl King {
-    pub fn new() -> Self {
-        King {has_moved: false}
-    } 
-}
-
