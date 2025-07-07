@@ -11,6 +11,7 @@ use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop
 pub type BoardMap = HashMap<Coords,Piece>;
 pub struct Board {
     map: BoardMap,
+    // TODO: Add history features : black_king_has_move, black_Hrook_has_moved...
 }
 
 impl Board { // Initiators and init helpers
