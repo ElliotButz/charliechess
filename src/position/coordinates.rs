@@ -1,5 +1,9 @@
+use std::u8;
+
 use strum_macros::EnumIter;
 use crate::position::color::Color;
+use num_derive; 
+use num_traits;
 
 #[macro_export]
 macro_rules! coords {
@@ -17,7 +21,7 @@ pub struct Coords {
     pub row: Row,
 }
 
-#[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy, num_derive::FromPrimitive, num_derive::ToPrimitive)]
 pub enum Row {
     R1=1,
     R2=2,
@@ -29,7 +33,7 @@ pub enum Row {
     R8=8,
 }
 
-#[derive(EnumIter, PartialEq, Hash, Eq,  Clone, Copy)]
+#[derive(EnumIter, PartialEq, Hash, Eq,  Clone, Copy,  num_derive::FromPrimitive, num_derive::ToPrimitive)]
 pub enum Column{
     A=1,
     B=2,
@@ -41,20 +45,31 @@ pub enum Column{
     H=8,
 }
 
-pub fn row_idx(row:&Row) -> u8 {
-    *row as u8
+fn idx<T: num_traits::ToPrimitive>(elt: T) -> u8 {
+    elt.to_u8().expect("Enum value must fit in u8")
 }
 
-pub fn col_idx(col:&Column) -> u8 {
-    *col as u8
+fn from_idx <T: num_traits::FromPrimitive>(idx:u8) -> T {
+    num_traits::FromPrimitive::from_u8(idx).expect("Failed to create enum value out of an u8.")
 }
+
 
 impl Coords {
     pub fn get_color(&self) -> Color {
-        let product = row_idx(&self.row)*col_idx(&self.col);
+        let product = idx(self.row)*idx(self.col);
         match product % 2 == 0 {
             true  => Color::White,
             false => Color::Black
+        }
+    }
+
+    pub fn to_colrow_idx(&self) -> (u8,u8) {
+        (idx(self.col),idx(self.row))
+    }
+
+    pub fn from_cartesian(c: u8, r: u8) -> Self {
+        Coords {
+            col:from_idx(c), row: from_idx(r),
         }
     }
 }
