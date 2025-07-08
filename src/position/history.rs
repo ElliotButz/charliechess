@@ -30,7 +30,7 @@ impl History {
     pub fn as_turn_serie(&self) -> TurnSerie {
         let mut turn_serie: TurnSerie =  TurnSerie::new();
         for n in (1..self.coups.len()).step_by(2) {
-            let white_coup: Coup = self.nth_coup(n).expect("All white choup are expected to be of type Coup, found non-Coup.");
+            let white_coup: Coup = self.nth_coup(n).expect("All white coups are expected to be of type Coup, found non-Coup.");
             let black_coup: Option<Coup> = self.nth_coup(n+1);
             let turn = Turn{white_coup, black_coup};
             turn_serie.push(turn)
