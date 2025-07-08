@@ -1,7 +1,4 @@
 extern crate num_derive;
-use num_traits::ToPrimitive;
-
-
 pub mod position;
 
 use crate::position::board::Board;
