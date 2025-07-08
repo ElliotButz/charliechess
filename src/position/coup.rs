@@ -1,7 +1,7 @@
 use crate::position::coordinates::Coords;
 use crate::position::pieces::Piece;
 
-
+#[derive(Clone, Copy)]
 pub struct Coup {
     pub start:  Coords,
     pub end:    Coords,
@@ -10,6 +10,7 @@ pub struct Coup {
     pub checks: bool
 }
 
+#[derive(Clone, Copy)]
 pub struct Turn {
     pub white_coup: Coup,
     pub black_coup: Option<Coup> // None if game ends after white's move.
