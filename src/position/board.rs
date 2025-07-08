@@ -58,9 +58,34 @@ impl Board { // Requesters
 }
 
 impl Board { // Editors
+
+    pub fn extract_piece_of_square(&mut self, square:&Coords) -> Piece {
+        // Remove a Piece from a square and return it.
+        self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
+    }
+
+    pub fn extract_optionnal_piece_of_square(&mut self, square:&Coords) -> Option<Piece> {
+        // Remove an Option<Piece> from a square and return it. It will be None if no Piece was on the square.
+        self.map.remove(square)
+    }
+
     pub fn add_piece_at_coords(&mut self,  coords: Coords, piece: Piece) {
         self.map.insert(coords, piece);
     }
+
+    pub fn move_piece(&mut self, start_square: &Coords, target_square: &Coords) -> Option<Piece> {
+    /*
+    1: Extract the Piece at start_square (it is displaced: Piece),
+    2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
+    3: Place the Piece displaced from start_square at target_square,
+    4: Return the possible taken Piece.
+    */
+        let displaced: Piece = self.extract_piece_of_square(start_square);
+        let taken: Option<Piece> =self.extract_optionnal_piece_of_square(target_square);
+        self.add_piece_at_coords(*target_square, displaced);
+        taken
+    }
+
 }
 
 
@@ -68,7 +93,7 @@ impl Board {
     pub fn terminal_display(&self) {
 
         let mut board_str = String::from(".  .  .  .  .  .  .  .  .\n");
-        for row in Row::iter(){
+        for row in Row::iter().rev(){
             for col in Column::iter(){
 
                 let case_color:Color = coords!(col, row).get_color();
