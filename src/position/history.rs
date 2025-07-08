@@ -29,7 +29,7 @@ impl History {
         for n in (1..self.coups.len()).step_by(2) {
             let white_coup: Coup = self.nth_coup(n).expect("All white coups in history are expected to be of type Coup, found non-Coup.");
             let black_coup: Option<Coup> = self.nth_coup(n+1);
-            let turn = Turn{white_coup, black_coup};
+            let turn = Turn{white_coup, black_coup}; // In a turn, White have played for sure but not Black.
             turn_serie.push(turn)
         }
         turn_serie
