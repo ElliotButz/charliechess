@@ -59,12 +59,12 @@ impl Board { // Requesters
 
 impl Board { // Editors
 
-    pub fn extract_piece_of_square(&mut self, square:&Coords) -> Piece {
+    fn extract_piece_of_square(&mut self, square:&Coords) -> Piece {
         // Remove a Piece from a square and return it.
         self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
     }
 
-    pub fn extract_optionnal_piece_of_square(&mut self, square:&Coords) -> Option<Piece> {
+    fn extract_optionnal_piece_of_square(&mut self, square:&Coords) -> Option<Piece> {
         // Remove an Option<Piece> from a square and return it. It will be None if no Piece was on the square.
         self.map.remove(square)
     }
