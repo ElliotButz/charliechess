@@ -56,7 +56,7 @@ impl Board { // Requesters
         self.map.get(&coords).copied()
     }
 
-    pub fn color_of_piece_on_square(&self, square: &Coords) -> Option<Color> {
+    pub fn color_of_piece_at(&self, square: &Coords) -> Option<Color> {
         if let Some(piece) = self.map.get(square) {
             Some(piece.color)
         } else {
