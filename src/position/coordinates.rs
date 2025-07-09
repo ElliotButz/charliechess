@@ -5,6 +5,8 @@ use crate::position::color::Color;
 use num_derive; 
 use num_traits;
 
+pub type CoordsVec = Vec<Coords>; 
+
 #[macro_export]
 macro_rules! coords {
     ($col:ident, $row:ident) => {
