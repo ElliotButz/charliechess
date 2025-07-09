@@ -1,4 +1,4 @@
-use std::u8;
+use std::i8;
 
 use strum_macros::EnumIter;
 use crate::position::color::Color;
@@ -47,12 +47,12 @@ pub enum Column{
     H=8,
 }
 
-fn idx<T: num_traits::ToPrimitive>(elt: T) -> u8 {
-    elt.to_u8().expect("Enum value must fit in u8")
+fn idx<T: num_traits::ToPrimitive>(elt: T) -> i8 {
+    elt.to_i8().expect("Enum value must fit in i8")
 }
 
-fn from_idx <T: num_traits::FromPrimitive>(idx:u8) -> T {
-    num_traits::FromPrimitive::from_u8(idx).expect("Failed to create enum value out of an u8.")
+fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
+    num_traits::FromPrimitive::from_i8(idx).expect("Failed to create enum value out of an i8.")
 }
 
 
@@ -65,11 +65,11 @@ impl Coords {
         }
     }
 
-    pub fn to_colrow_idx(&self) -> (u8,u8) {
+    pub fn to_colrow_idx(&self) -> (i8,i8) {
         (idx(self.col),idx(self.row))
     }
 
-    pub fn from_cartesian(c: u8, r: u8) -> Self {
+    pub fn from_colrow_idx(c: i8, r: i8) -> Self {
         Coords {
             col:from_idx(c), row: from_idx(r),
         }
