@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use strum::IntoEnumIterator;
 use colored::{ColoredString, Colorize};
 
-
+use crate::position::coup::Coup;
 use crate::{coords, piece};
 use crate::position::color::{Color,Color::{White, Black}};
 use crate::position::coordinates::{Coords, Row, Row::*, Column, Column::*};
@@ -11,17 +11,35 @@ use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop
 pub type BoardMap = HashMap<Coords,Piece>;
 pub struct Board {
     map: BoardMap,
+    last_move: Option<Coup>,
+    black_king_has_moved: bool,
+    black_a_tower_has_moved: bool,
+    black_h_tower_has_moved: bool,
+    white_king_has_moved: bool,
+    white_a_tower_has_moved: bool,
+    white_h_tower_has_moved: bool,
     // TODO: Add history features : black_king_has_move, black_Hrook_has_moved...
 }
 
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
-        Board { map: BoardMap::with_capacity(64) }
+        Board {
+            map: BoardMap::with_capacity(64),
+            last_move: None,
+            black_king_has_moved:    false,
+            black_a_tower_has_moved: false,
+            black_h_tower_has_moved: false,
+            white_king_has_moved:    false,
+            white_a_tower_has_moved: false,
+            white_h_tower_has_moved: false,
+        }
     }
 
     pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator
-        Board{map:piece_by_coords}
+        let mut board = Board::new();
+        board.map = piece_by_coords;
+        board
     }
 
     pub fn at_start_state() -> Board { // Initiator
@@ -63,6 +81,11 @@ impl Board { // Requesters
             None
         }     
     }
+
+    pub fn piece_checks_king(&self, piece_coords: &Coords) -> bool {
+        // TODO
+        return false
+    }
 }
 
 impl Board { // Editors
@@ -77,21 +100,28 @@ impl Board { // Editors
         self.map.remove(square)
     }
 
-    fn add_piece_at_coords(&mut self,  coords: Coords, piece: Piece) {
-        self.map.insert(coords, piece);
+    fn add_piece_at_coords(&mut self,  coords: &Coords, piece: Piece) {
+        self.map.insert(*coords, piece);
     }
 
-    pub fn move_piece(&mut self, start_square: &Coords, target_square: &Coords) -> Option<Piece> {
+    pub fn move_piece(&mut self, start_square: &Coords, target_square: &Coords) -> Coup {
     /*
     1: Extract the Piece at start_square (it is displaced: Piece),
     2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
     3: Place the Piece displaced from start_square at target_square,
-    4: Return the possible taken Piece.
+    4: Return the coup. Shall be used to update board.
     */
         let displaced: Piece = self.extract_piece_of_square(start_square);
-        let taken: Option<Piece> =self.extract_optionnal_piece_of_square(target_square);
-        self.add_piece_at_coords(*target_square, displaced);
-        taken
+        let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
+        self.add_piece_at_coords(target_square, displaced);
+        let coup = Coup {
+            start: *start_square,
+            end  : *target_square,
+            piece: displaced,
+            taken: taken,
+            checks: self.piece_checks_king(target_square)
+        };
+        coup
     }
 
 }
