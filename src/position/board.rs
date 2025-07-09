@@ -52,8 +52,16 @@ impl Board { // Initiators and init helpers
 }
 
 impl Board { // Requesters
-    pub fn piece_at_coords(&self, coords: Coords)-> Option<Piece> {
+    pub fn piece_at_coords(&self, coords: Coords) -> Option<Piece> {
         self.map.get(&coords).copied()
+    }
+
+    pub fn color_of_piece_on_square(&self, square: &Coords) -> Option<Color> {
+        if let Some(piece) = self.map.get(square) {
+            Some(piece.color)
+        } else {
+            None
+        }     
     }
 }
 
@@ -69,7 +77,7 @@ impl Board { // Editors
         self.map.remove(square)
     }
 
-    pub fn add_piece_at_coords(&mut self,  coords: Coords, piece: Piece) {
+    fn add_piece_at_coords(&mut self,  coords: Coords, piece: Piece) {
         self.map.insert(coords, piece);
     }
 
