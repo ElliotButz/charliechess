@@ -1,4 +1,5 @@
 use std::i8;
+use std::ops::Add;
 
 use strum_macros::EnumIter;
 use crate::position::color::Color;
@@ -55,6 +56,8 @@ fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
     num_traits::FromPrimitive::from_i8(idx).expect("Failed to create enum value out of an i8.")
 }
 
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+pub struct IdxCoordinates {col: i8, row:i8}
 
 impl Coords {
     pub fn get_color(&self) -> Color {
@@ -65,13 +68,47 @@ impl Coords {
         }
     }
 
-    pub fn to_colrow_idx(&self) -> (i8,i8) {
-        (idx(self.col),idx(self.row))
+    pub fn to_colrow_idx(&self) -> IdxCoordinates {
+         IdxCoordinates{col: idx(self.col),row: idx(self.row)}
     }
 
-    pub fn from_colrow_idx(c: i8, r: i8) -> Self {
+    pub fn to_colidx_rowidx(&self) -> (i8, i8) {
+        let coordsidx = Self::to_colrow_idx(&self);
+        (coordsidx.col, coordsidx.row)
+    }
+
+    pub fn from_colrow_idx(idx_coordinates:  &IdxCoordinates) -> Self {
+        assert!(idx_coordinates.is_oob(), "Tried to create Coords from IdxCoordinates that are out of board.");
         Coords {
-            col:from_idx(c), row: from_idx(r),
+            col:from_idx(idx_coordinates.col), row: from_idx(idx_coordinates.row),
         }
     }
+    pub fn from_colidx_rowidx(c: i8, r: i8) -> Self {
+        let coords = IdxCoordinates{ col: c, row: r };
+        Self::from_colrow_idx(&coords)
+    }
 }
+
+impl Add for IdxCoordinates {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        let col_sum = self.col + other.col;
+        let row_sum = self.row + other.row;
+        IdxCoordinates{ col: col_sum , row:row_sum }
+    }
+}
+
+impl IdxCoordinates {
+    pub fn is_oob(&self) -> bool { // oob : out of board
+        !(1..8).contains(&self.col) && !(1..8).contains(&self.row) 
+    }
+}
+
+impl Add for Coords {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self::from_colrow_idx(&(self.to_colrow_idx() + other.to_colrow_idx()))
+    }
+}
+
