@@ -10,7 +10,7 @@ pub type CoordsVec = Vec<Coords>;
 
 #[macro_export]
 macro_rules! coords {
-    ($col:ident, $row:ident) => {
+    ($col:expr, $row:expr) => {
         Coords {
             col: $col,
             row: $row,
@@ -78,7 +78,7 @@ impl Coords {
     }
 
     pub fn from_colrow_idx(idx_coordinates:  &IdxCoordinates) -> Self {
-        assert!(idx_coordinates.is_oob(), "Tried to create Coords from IdxCoordinates that are out of board.");
+        assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoordinates that are out of board.");
         Coords {
             col:from_idx(idx_coordinates.col), row: from_idx(idx_coordinates.row),
         }
@@ -99,8 +99,12 @@ impl Add for IdxCoordinates {
 }
 
 impl IdxCoordinates {
-    pub fn is_oob(&self) -> bool { // oob : out of board
-        !(1..8).contains(&self.col) && !(1..8).contains(&self.row) 
+    pub fn in_board(&self) -> bool { 
+        (1..8).contains(&self.col) && !(1..8).contains(&self.row) 
+    }
+
+    pub fn not_in_board(&self) -> bool {
+        !Self::in_board(&self)
     }
 }
 
