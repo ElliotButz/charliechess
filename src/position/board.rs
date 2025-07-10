@@ -5,7 +5,7 @@ use colored::{ColoredString, Colorize};
 use crate::position::coup::Coup;
 use crate::{coords, piece};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::coordinates::{Coords, Row, Row::*, Column, Column::*};
+use crate::position::coordinates::{Coords, Row, Row::*, Column, Column::*, CoordsVec};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Coords,Piece>;
@@ -18,6 +18,8 @@ pub struct Board {
     white_king_has_moved: bool,
     white_a_tower_has_moved: bool,
     white_h_tower_has_moved: bool,
+    squares_with_pined_pieces : CoordsVec,
+    squares_with_pining_pieces: CoordsVec   
     // TODO: Add history features : black_king_has_move, black_Hrook_has_moved...
 }
 
@@ -33,6 +35,7 @@ impl Board { // Initiators and init helpers
             white_king_has_moved:    false,
             white_a_tower_has_moved: false,
             white_h_tower_has_moved: false,
+            pinned_pieces
         }
     }
 
