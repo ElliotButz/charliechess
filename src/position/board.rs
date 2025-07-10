@@ -35,7 +35,8 @@ impl Board { // Initiators and init helpers
             white_king_has_moved:    false,
             white_a_tower_has_moved: false,
             white_h_tower_has_moved: false,
-            pinned_pieces
+            squares_with_pined_pieces  : CoordsVec::with_capacity(12),
+            squares_with_pining_pieces : CoordsVec::with_capacity(12),
         }
     }
 
