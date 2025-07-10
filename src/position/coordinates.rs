@@ -92,9 +92,9 @@ impl Coords {
 impl Add for IdxCoordinates {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        let col_sum = self.col + other.col;
-        let row_sum = self.row + other.row;
-        IdxCoordinates{ col: col_sum , row:row_sum }
+        IdxCoordinates{
+            col: self.col + other.col,
+            row: self.row + other.row }
     }
 }
 
