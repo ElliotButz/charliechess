@@ -90,6 +90,13 @@ impl Board { // Requesters
         // TODO
         return false
     }
+    
+    pub fn square_is_free_for_piece_of_color(&self, square: &Coords, color: &Color) -> bool {
+        match self.color_of_piece_at(&square) { // Exclude coords of ally pieces
+            None => true,
+            Some(piece_color) => ! (piece_color == *color)
+        }
+    }
 }
 
 impl Board { // Editors
