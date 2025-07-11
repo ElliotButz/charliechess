@@ -2,11 +2,14 @@ use std::i8;
 use std::ops::Add;
 
 use strum_macros::EnumIter;
+use crate::position::board::Board;
 use crate::position::color::Color;
 use num_derive; 
 use num_traits;
 
-pub type CoordsVec = Vec<Coords>; 
+pub type CoordsVec = Vec<Coords>;
+pub type IdxCoordsVec = Vec<IdxCoordinates>;
+
 
 #[macro_export]
 macro_rules! coords {
@@ -59,6 +62,7 @@ fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct IdxCoordinates {col: i8, row:i8}
 
+
 impl Coords {
     pub fn get_color(&self) -> Color {
         let product = idx(self.row)*idx(self.col);
@@ -100,7 +104,7 @@ impl Add for IdxCoordinates {
 
 impl IdxCoordinates {
     pub fn in_board(&self) -> bool { 
-        (1..8).contains(&self.col) && !(1..8).contains(&self.row) 
+        (1..=8).contains(&self.col) && (1..=8).contains(&self.row) 
     }
 
     pub fn not_in_board(&self) -> bool {
@@ -116,3 +120,23 @@ impl Add for Coords {
     }
 }
 
+pub trait ExcludeAbsurds {
+    fn exclude_absurds(&mut self, boardmap: &Board, color: &Color);
+}
+
+impl ExcludeAbsurds for IdxCoordsVec  {
+    fn exclude_absurds(&mut self, board: &Board, player_color: &Color) {
+        self.retain(|&idx_coords|
+            idx_coords.in_board() // Exclude out of the board coords
+            &&
+            board.square_is_free_for_piece_of_color(&Coords::from_colrow_idx(&idx_coords), &player_color)
+        );
+    }
+}
+
+impl ExcludeAbsurds for CoordsVec  {
+    fn exclude_absurds(&mut self, board: &Board, player_color: &Color) {
+        self.retain(|&coords|board.square_is_free_for_piece_of_color(&coords, &player_color)
+        );
+    }
+}

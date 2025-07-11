@@ -1,4 +1,4 @@
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Color {White=1,Black=-1}
 
 impl Color {
@@ -8,4 +8,10 @@ impl Color {
             Color::Black => -1i8
         }}
 
+    pub fn the_other(&self) -> Self {
+        match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White
+        }
+    } 
 }
