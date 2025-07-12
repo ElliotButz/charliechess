@@ -20,6 +20,16 @@ macro_rules! coords {
         }
     };
 }
+#[macro_export]
+macro_rules! idxcoords {
+    ($col:expr, $row:expr) => {
+        IdxCoords {
+            col: $col,
+            row: $row,
+        }
+    };
+}
+
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Coords {
@@ -51,11 +61,11 @@ pub enum Column{
     H=8,
 }
 
-fn idx<T: num_traits::ToPrimitive>(elt: T) -> i8 {
+pub fn idx<T: num_traits::ToPrimitive>(elt: T) -> i8 {
     elt.to_i8().expect("Enum value must fit in i8")
 }
 
-fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
+pub fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
     num_traits::FromPrimitive::from_i8(idx).expect("Failed to create enum value out of an i8.")
 }
 
