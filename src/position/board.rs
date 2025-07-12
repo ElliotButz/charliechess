@@ -74,8 +74,8 @@ impl Board { // Initiators and init helpers
 
 impl Board { // Requesters
     
-    pub fn piece_at_coords(&self, coords: Coords) -> Option<Piece> {
-        self.map.get(&coords).copied()
+    pub fn piece_at_coords(&self, coords: &Coords) -> Option<Piece> {
+        self.map.get(coords).copied()
     }
 
     pub fn color_of_piece_at(&self, square: &Coords) -> Option<Color> {
@@ -84,6 +84,13 @@ impl Board { // Requesters
         } else {
             None
         }     
+    }
+
+    pub fn square_is_free(&self, square: &Coords) -> bool {
+        match self.piece_at_coords(square) {
+            None => true,
+            _ => false
+        }
     }
 
     pub fn square_is_free_for_piece_of_color(&self, square: &Coords, color: &Color) -> bool {
@@ -146,7 +153,7 @@ impl Board {
             for col in Column::iter(){
 
                 let case_color:Color = coords!(col, row).get_color();
-                let piece_char = match &self.piece_at_coords(coords!(col, row)) {
+                let piece_char = match &self.piece_at_coords(&coords!(col, row)) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };
