@@ -8,7 +8,7 @@ use num_derive;
 use num_traits;
 
 pub type CoordsVec = Vec<Coords>;
-pub type IdxCoordsVec = Vec<IdxCoordinates>;
+pub type IdxCoordsVec = Vec<IdxCoords>;
 
 
 #[macro_export]
@@ -60,7 +60,7 @@ fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
-pub struct IdxCoordinates {col: i8, row:i8}
+pub struct IdxCoords { pub col: i8, pub row:i8}
 
 
 impl Coords {
@@ -72,8 +72,8 @@ impl Coords {
         }
     }
 
-    pub fn to_colrow_idx(&self) -> IdxCoordinates {
-         IdxCoordinates{col: idx(self.col),row: idx(self.row)}
+    pub fn to_colrow_idx(&self) -> IdxCoords {
+         IdxCoords{col: idx(self.col),row: idx(self.row)}
     }
 
     pub fn to_colidx_rowidx(&self) -> (i8, i8) {
@@ -81,28 +81,28 @@ impl Coords {
         (coordsidx.col, coordsidx.row)
     }
 
-    pub fn from_colrow_idx(idx_coordinates:  &IdxCoordinates) -> Self {
-        assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoordinates that are out of board.");
+    pub fn from_colrow_idx(idx_coordinates:  &IdxCoords) -> Self {
+        assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoords that are out of board.");
         Coords {
             col:from_idx(idx_coordinates.col), row: from_idx(idx_coordinates.row),
         }
     }
     pub fn from_colidx_rowidx(c: i8, r: i8) -> Self {
-        let coords = IdxCoordinates{ col: c, row: r };
+        let coords = IdxCoords{ col: c, row: r };
         Self::from_colrow_idx(&coords)
     }
 }
 
-impl Add for IdxCoordinates {
+impl Add for IdxCoords {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        IdxCoordinates{
+        IdxCoords{
             col: self.col + other.col,
             row: self.row + other.row }
     }
 }
 
-impl IdxCoordinates {
+impl IdxCoords {
     pub fn in_board(&self) -> bool { 
         (1..=8).contains(&self.col) && (1..=8).contains(&self.row) 
     }
@@ -120,23 +120,34 @@ impl Add for Coords {
     }
 }
 
-pub trait ExcludeAbsurds {
-    fn exclude_absurds(&mut self, boardmap: &Board, color: &Color);
+pub trait ExcludeOutOfBoard {
+    fn exclude_out_of_board(&mut self) ;
 }
 
-impl ExcludeAbsurds for IdxCoordsVec  {
-    fn exclude_absurds(&mut self, board: &Board, player_color: &Color) {
-        self.retain(|&idx_coords|
-            idx_coords.in_board() // Exclude out of the board coords
-            &&
-            board.square_is_free_for_piece_of_color(&Coords::from_colrow_idx(&idx_coords), &player_color)
-        );
+impl ExcludeOutOfBoard for IdxCoordsVec{
+    fn exclude_out_of_board(&mut self) {
+        self.retain(|&idx_coords| idx_coords.in_board())
     }
 }
 
-impl ExcludeAbsurds for CoordsVec  {
-    fn exclude_absurds(&mut self, board: &Board, player_color: &Color) {
-        self.retain(|&coords|board.square_is_free_for_piece_of_color(&coords, &player_color)
-        );
+pub trait OpenToColor {
+    fn open_to_color(&mut self, board: &Board, color: &Color);
+}
+impl OpenToColor for CoordsVec {
+    fn open_to_color(&mut self, board: &Board, color: &Color) {
+        self.retain(|&square| board.square_is_free_for_piece_of_color(&square, color))
+    }
+}
+
+pub trait CoordsVecEquivalent {
+    fn to_coords_vec(&self) -> CoordsVec ;
+}
+
+impl CoordsVecEquivalent for IdxCoordsVec {
+    fn to_coords_vec(&self) -> CoordsVec {
+        self.iter()
+        .filter(|idx|idx.in_board())
+        .map(|idx_coordinates|Coords::from_colrow_idx(idx_coordinates))
+        .collect()
     }
 }
