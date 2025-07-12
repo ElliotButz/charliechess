@@ -10,17 +10,16 @@ use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop
 
 pub type BoardMap = HashMap<Coords,Piece>;
 pub struct Board {
-    map: BoardMap,
-    last_move: Option<Coup>,
-    black_king_has_moved: bool,
-    black_a_tower_has_moved: bool,
-    black_h_tower_has_moved: bool,
-    white_king_has_moved: bool,
-    white_a_tower_has_moved: bool,
-    white_h_tower_has_moved: bool,
-    squares_with_pined_pieces : CoordsVec,
-    squares_with_pining_pieces: CoordsVec   
-    // TODO: Add history features : black_king_has_move, black_Hrook_has_moved...
+    pub map: BoardMap,
+    pub last_move: Coup,
+    pub black_king_has_moved: bool,
+    pub black_a_tower_has_moved: bool,
+    pub black_h_tower_has_moved: bool,
+    pub white_king_has_moved: bool,
+    pub white_a_tower_has_moved: bool,
+    pub white_h_tower_has_moved: bool,
+    pub squares_with_pined_pieces : CoordsVec,
+    pub squares_with_pining_pieces: CoordsVec   
 }
 
 impl Board { // Initiators and init helpers
@@ -28,7 +27,7 @@ impl Board { // Initiators and init helpers
     pub fn new() -> Board { // Initiator
         Board {
             map: BoardMap::with_capacity(64),
-            last_move: None,
+            last_move: Coup::coup_zero(),
             black_king_has_moved:    false,
             black_a_tower_has_moved: false,
             black_h_tower_has_moved: false,
@@ -74,6 +73,7 @@ impl Board { // Initiators and init helpers
 }
 
 impl Board { // Requesters
+    
     pub fn piece_at_coords(&self, coords: Coords) -> Option<Piece> {
         self.map.get(&coords).copied()
     }
@@ -86,16 +86,16 @@ impl Board { // Requesters
         }     
     }
 
-    pub fn piece_checks_king(&self, piece_coords: &Coords) -> bool {
-        // TODO
-        return false
-    }
-    
     pub fn square_is_free_for_piece_of_color(&self, square: &Coords, color: &Color) -> bool {
         match self.color_of_piece_at(&square) { // Exclude coords of ally pieces
             None => true,
             Some(piece_color) => ! (piece_color == *color)
         }
+    }
+
+    pub fn piece_checks_king(&self, piece_coords: &Coords) -> bool {
+        // TODO
+        return false
     }
 }
 
