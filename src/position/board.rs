@@ -3,12 +3,12 @@ use strum::IntoEnumIterator;
 use colored::{ColoredString, Colorize};
 
 use crate::position::coup::Coup;
-use crate::{coords, piece};
+use crate::{square, piece};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::coordinates::{Coords, Row, Row::*, Column, Column::*, CoordsVec};
+use crate::position::coordinates::{Square, Row, Row::*, Column, Column::*, SquareVec};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
-pub type BoardMap = HashMap<Coords,Piece>;
+pub type BoardMap = HashMap<Square,Piece>;
 pub struct Board {
     pub map: BoardMap,
     pub last_move: Coup,
@@ -18,8 +18,8 @@ pub struct Board {
     pub white_king_has_moved: bool,
     pub white_a_tower_has_moved: bool,
     pub white_h_tower_has_moved: bool,
-    pub squares_with_pined_pieces : CoordsVec,
-    pub squares_with_pining_pieces: CoordsVec   
+    pub squares_with_pined_pieces : SquareVec,
+    pub squares_with_pining_pieces: SquareVec   
 }
 
 impl Board { // Initiators and init helpers
@@ -34,8 +34,8 @@ impl Board { // Initiators and init helpers
             white_king_has_moved:    false,
             white_a_tower_has_moved: false,
             white_h_tower_has_moved: false,
-            squares_with_pined_pieces  : CoordsVec::with_capacity(12),
-            squares_with_pining_pieces : CoordsVec::with_capacity(12),
+            squares_with_pined_pieces  : SquareVec::with_capacity(12),
+            squares_with_pining_pieces : SquareVec::with_capacity(12),
         }
     }
 
@@ -62,10 +62,10 @@ impl Board { // Initiators and init helpers
                 E => King,
             };
 
-            piece_at_coords.insert(coords!(col, R8), piece!(Black, major_piece_kind)); // Black major pieces
-            piece_at_coords.insert(coords!(col, R7), piece!(Black, Pawn)); // Black pawns
-            piece_at_coords.insert(coords!(col, R2), piece!(White, Pawn)); // White pawns
-            piece_at_coords.insert(coords!(col, R1), piece!(White, major_piece_kind)); // White major pieces
+            piece_at_coords.insert(square!(col, R8), piece!(Black, major_piece_kind)); // Black major pieces
+            piece_at_coords.insert(square!(col, R7), piece!(Black, Pawn)); // Black pawns
+            piece_at_coords.insert(square!(col, R2), piece!(White, Pawn)); // White pawns
+            piece_at_coords.insert(square!(col, R1), piece!(White, major_piece_kind)); // White major pieces
 
         };
         piece_at_coords
@@ -74,11 +74,11 @@ impl Board { // Initiators and init helpers
 
 impl Board { // Requesters
     
-    pub fn piece_at_coords(&self, coords: &Coords) -> Option<Piece> {
+    pub fn piece_at_coords(&self, coords: &Square) -> Option<Piece> {
         self.map.get(coords).copied()
     }
 
-    pub fn color_of_piece_at(&self, square: &Coords) -> Option<Color> {
+    pub fn color_of_piece_at(&self, square: &Square) -> Option<Color> {
         if let Some(piece) = self.map.get(square) {
             Some(piece.color)
         } else {
@@ -86,21 +86,21 @@ impl Board { // Requesters
         }     
     }
 
-    pub fn square_is_free(&self, square: &Coords) -> bool {
+    pub fn square_is_free(&self, square: &Square) -> bool {
         match self.piece_at_coords(square) {
             None => true,
             _ => false
         }
     }
 
-    pub fn square_is_free_for_piece_of_color(&self, square: &Coords, color: &Color) -> bool {
+    pub fn square_is_free_for_piece_of_color(&self, square: &Square, color: &Color) -> bool {
         match self.color_of_piece_at(&square) { // Exclude coords of ally pieces
             None => true,
             Some(piece_color) => ! (piece_color == *color)
         }
     }
 
-    pub fn piece_checks_king(&self, piece_coords: &Coords) -> bool {
+    pub fn piece_checks_king(&self, piece_coords: &Square) -> bool {
         // TODO
         return false
     }
@@ -108,21 +108,21 @@ impl Board { // Requesters
 
 impl Board { // Editors
 
-    fn extract_piece_of_square(&mut self, square:&Coords) -> Piece {
+    fn extract_piece_of_square(&mut self, square:&Square) -> Piece {
         // Remove a Piece from a square and return it.
         self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
     }
 
-    fn extract_optionnal_piece_of_square(&mut self, square:&Coords) -> Option<Piece> {
+    fn extract_optionnal_piece_of_square(&mut self, square:&Square) -> Option<Piece> {
         // Remove an Option<Piece> from a square and return it. It will be None if no Piece was on the square.
         self.map.remove(square)
     }
 
-    fn add_piece_at_coords(&mut self,  coords: &Coords, piece: Piece) {
+    fn add_piece_at_coords(&mut self,  coords: &Square, piece: Piece) {
         self.map.insert(*coords, piece);
     }
 
-    pub fn move_piece(&mut self, start_square: &Coords, target_square: &Coords) -> Coup {
+    pub fn move_piece(&mut self, start_square: &Square, target_square: &Square) -> Coup {
     /*
     1: Extract the Piece at start_square (it is displaced: Piece),
     2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
@@ -152,8 +152,8 @@ impl Board {
         for row in Row::iter().rev(){
             for col in Column::iter(){
 
-                let case_color:Color = coords!(col, row).get_color();
-                let piece_char = match &self.piece_at_coords(&coords!(col, row)) {
+                let case_color:Color = square!(col, row).get_color();
+                let piece_char = match &self.piece_at_coords(&square!(col, row)) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };

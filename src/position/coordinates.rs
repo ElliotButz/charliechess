@@ -7,14 +7,14 @@ use crate::position::color::Color;
 use num_derive; 
 use num_traits;
 
+pub type SquareVec = Vec<Square>;
 pub type CoordsVec = Vec<Coords>;
-pub type IdxCoordsVec = Vec<IdxCoords>;
 
 
 #[macro_export]
-macro_rules! coords {
+macro_rules! square {
     ($col:expr, $row:expr) => {
-        Coords {
+        Square {
             col: $col,
             row: $row,
         }
@@ -23,7 +23,7 @@ macro_rules! coords {
 #[macro_export]
 macro_rules! idxcoords {
     ($col:expr, $row:expr) => {
-        IdxCoords {
+        Coords {
             col: $col,
             row: $row,
         }
@@ -32,7 +32,7 @@ macro_rules! idxcoords {
 
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Coords {
+pub struct Square {
     pub col: Column,
     pub row: Row,
 }
@@ -61,58 +61,58 @@ pub enum Column{
     H=8,
 }
 
-pub fn idx<T: num_traits::ToPrimitive>(elt: T) -> i8 {
+pub fn coord<T: num_traits::ToPrimitive>(elt: T) -> i8 {
     elt.to_i8().expect("Enum value must fit in i8")
 }
 
-pub fn from_idx <T: num_traits::FromPrimitive>(idx:i8) -> T {
+pub fn from_coord <T: num_traits::FromPrimitive>(idx:i8) -> T {
     num_traits::FromPrimitive::from_i8(idx).expect("Failed to create enum value out of an i8.")
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
-pub struct IdxCoords { pub col: i8, pub row:i8}
+pub struct Coords { pub col: i8, pub row:i8}
 
 
-impl Coords {
+impl Square {
     pub fn get_color(&self) -> Color {
-        let product = idx(self.row)*idx(self.col);
+        let product = coord(self.row)*coord(self.col);
         match product % 2 == 0 {
             true  => Color::White,
             false => Color::Black
         }
     }
 
-    pub fn to_colrow_idx(&self) -> IdxCoords {
-         IdxCoords{col: idx(self.col),row: idx(self.row)}
+    pub fn to_coords(&self) -> Coords {
+         Coords{col: coord(self.col),row: coord(self.row)}
     }
 
-    pub fn to_colidx_rowidx(&self) -> (i8, i8) {
-        let coordsidx = Self::to_colrow_idx(&self);
+    pub fn to_coord_couple(&self) -> (i8, i8) {
+        let coordsidx = Self::to_coords(&self);
         (coordsidx.col, coordsidx.row)
     }
 
-    pub fn from_colrow_idx(idx_coordinates:  &IdxCoords) -> Self {
+    pub fn from_coords(idx_coordinates:  &Coords) -> Self {
         assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoords that are out of board.");
-        Coords {
-            col:from_idx(idx_coordinates.col), row: from_idx(idx_coordinates.row),
+        Square {
+            col:from_coord(idx_coordinates.col), row: from_coord(idx_coordinates.row),
         }
     }
-    pub fn from_colidx_rowidx(c: i8, r: i8) -> Self {
-        let coords = IdxCoords{ col: c, row: r };
-        Self::from_colrow_idx(&coords)
+    pub fn from_coord_couple(c: i8, r: i8) -> Self {
+        let coords = Coords{ col: c, row: r };
+        Self::from_coords(&coords)
     }
 }
 
-impl Add for IdxCoords {
+impl Add for Coords {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        IdxCoords{
+        Coords{
             col: self.col + other.col,
             row: self.row + other.row }
     }
 }
 
-impl IdxCoords {
+impl Coords {
     pub fn in_board(&self) -> bool { 
         (1..=8).contains(&self.col) && (1..=8).contains(&self.row) 
     }
@@ -122,11 +122,11 @@ impl IdxCoords {
     }
 }
 
-impl Add for Coords {
+impl Add for Square {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self::from_colrow_idx(&(self.to_colrow_idx() + other.to_colrow_idx()))
+        Self::from_coords(&(self.to_coords() + other.to_coords()))
     }
 }
 
@@ -134,30 +134,30 @@ pub trait ExcludeOutOfBoard {
     fn exclude_out_of_board(&mut self) ;
 }
 
-impl ExcludeOutOfBoard for IdxCoordsVec{
+impl ExcludeOutOfBoard for CoordsVec{
     fn exclude_out_of_board(&mut self) {
-        self.retain(|&idx_coords| idx_coords.in_board())
+        self.retain(|&coords| coords.in_board())
     }
 }
 
 pub trait OpenToColor {
     fn open_to_color(&mut self, board: &Board, color: &Color);
 }
-impl OpenToColor for CoordsVec {
+impl OpenToColor for SquareVec {
     fn open_to_color(&mut self, board: &Board, color: &Color) {
         self.retain(|&square| board.square_is_free_for_piece_of_color(&square, color))
     }
 }
 
 pub trait CoordsVecEquivalent {
-    fn to_coords_vec(&self) -> CoordsVec ;
+    fn to_coords_vec(&self) -> SquareVec ;
 }
 
-impl CoordsVecEquivalent for IdxCoordsVec {
-    fn to_coords_vec(&self) -> CoordsVec {
+impl CoordsVecEquivalent for CoordsVec {
+    fn to_coords_vec(&self) -> SquareVec {
         self.iter()
         .filter(|idx|idx.in_board())
-        .map(|idx_coordinates|Coords::from_colrow_idx(idx_coordinates))
+        .map(|coords|Square::from_coords(coords))
         .collect()
     }
 }
