@@ -91,7 +91,7 @@ impl Square {
         (coordsidx.col, coordsidx.row)
     }
 
-    pub fn from_coords(idx_coordinates:  &Coords) -> Self {
+    pub fn from_coords(idx_coordinates:  Coords) -> Self {
         assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoords that are out of board.");
         Square {
             col:from_coord(idx_coordinates.col), row: from_coord(idx_coordinates.row),
@@ -99,7 +99,7 @@ impl Square {
     }
     pub fn from_coord_couple(c: i8, r: i8) -> Self {
         let coords = Coords{ col: c, row: r };
-        Self::from_coords(&coords)
+        Self::from_coords(coords)
     }
 }
 
@@ -126,7 +126,7 @@ impl Add for Square {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self::from_coords(&(self.to_coords() + other.to_coords()))
+        Self::from_coords((self.to_coords() + other.to_coords()))
     }
 }
 
@@ -141,11 +141,11 @@ impl ExcludeOutOfBoard for CoordsVec{
 }
 
 pub trait OpenToColor {
-    fn open_to_color(&mut self, board: &Board, color: &Color);
+    fn open_to_color(&mut self, board: &Board, color: Color);
 }
 impl OpenToColor for SquareVec {
-    fn open_to_color(&mut self, board: &Board, color: &Color) {
-        self.retain(|&square| board.square_is_free_for_piece_of_color(&square, color))
+    fn open_to_color(&mut self, board: &Board, color: Color) {
+        self.retain(|&square| board.square_is_free_for_piece_of_color(square, color))
     }
 }
 
@@ -157,7 +157,7 @@ impl CoordsVecEquivalent for CoordsVec {
     fn to_coords_vec(&self) -> SquareVec {
         self.iter()
         .filter(|idx|idx.in_board())
-        .map(|coords|Square::from_coords(coords))
+        .map(|&coords|Square::from_coords(coords))
         .collect()
     }
 }

@@ -74,33 +74,33 @@ impl Board { // Initiators and init helpers
 
 impl Board { // Requesters
     
-    pub fn piece_at_coords(&self, coords: &Square) -> Option<Piece> {
-        self.map.get(coords).copied()
+    pub fn piece_at_coords(&self, coords: Square) -> Option<Piece> {
+        self.map.get(&coords).copied()
     }
 
-    pub fn color_of_piece_at(&self, square: &Square) -> Option<Color> {
-        if let Some(piece) = self.map.get(square) {
+    pub fn color_of_piece_at(&self, square: Square) -> Option<Color> {
+        if let Some(piece) = self.map.get(&square) {
             Some(piece.color)
         } else {
             None
         }     
     }
 
-    pub fn square_is_free(&self, square: &Square) -> bool {
+    pub fn square_is_free(&self, square: Square) -> bool {
         match self.piece_at_coords(square) {
             None => true,
             _ => false
         }
     }
 
-    pub fn square_is_free_for_piece_of_color(&self, square: &Square, color: &Color) -> bool {
-        match self.color_of_piece_at(&square) { // Exclude coords of ally pieces
+    pub fn square_is_free_for_piece_of_color(&self, square: Square, color: Color) -> bool {
+        match self.color_of_piece_at(square) { // Exclude coords of ally pieces
             None => true,
-            Some(piece_color) => ! (piece_color == *color)
+            Some(piece_color) => ! (piece_color == color)
         }
     }
 
-    pub fn piece_checks_king(&self, piece_coords: &Square) -> bool {
+    pub fn piece_checks_king(&self, piece_coords: Square) -> bool {
         // TODO
         return false
     }
@@ -108,21 +108,21 @@ impl Board { // Requesters
 
 impl Board { // Editors
 
-    fn extract_piece_of_square(&mut self, square:&Square) -> Piece {
+    fn extract_piece_of_square(&mut self, square: Square) -> Piece {
         // Remove a Piece from a square and return it.
         self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
     }
 
-    fn extract_optionnal_piece_of_square(&mut self, square:&Square) -> Option<Piece> {
+    fn extract_optionnal_piece_of_square(&mut self, square: Square) -> Option<Piece> {
         // Remove an Option<Piece> from a square and return it. It will be None if no Piece was on the square.
-        self.map.remove(square)
+        self.map.remove(&square)
     }
 
-    fn add_piece_at_coords(&mut self,  coords: &Square, piece: Piece) {
-        self.map.insert(*coords, piece);
+    fn add_piece_at_coords(&mut self,  coords: Square, piece: Piece) {
+        self.map.insert(coords, piece);
     }
 
-    pub fn move_piece(&mut self, start_square: &Square, target_square: &Square) -> Coup {
+    pub fn move_piece(&mut self, start_square: Square, target_square: Square) -> Coup {
     /*
     1: Extract the Piece at start_square (it is displaced: Piece),
     2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
@@ -133,8 +133,8 @@ impl Board { // Editors
         let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
         self.add_piece_at_coords(target_square, displaced);
         let coup = Coup {
-            start: *start_square,
-            end  : *target_square,
+            start: start_square,
+            end  : target_square,
             piece: displaced,
             taken: taken,
             checks: self.piece_checks_king(target_square)
@@ -153,7 +153,7 @@ impl Board {
             for col in Column::iter(){
 
                 let case_color:Color = square!(col, row).get_color();
-                let piece_char = match &self.piece_at_coords(&square!(col, row)) {
+                let piece_char = match &self.piece_at_coords(square!(col, row)) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };
