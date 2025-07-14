@@ -62,10 +62,10 @@ impl Board { // Initiators and init helpers
                 E => King,
             };
 
-            piece_at_coords.insert(square!(col, R8), piece!(Black, major_piece_kind)); // Black major pieces
-            piece_at_coords.insert(square!(col, R7), piece!(Black, Pawn)); // Black pawns
-            piece_at_coords.insert(square!(col, R2), piece!(White, Pawn)); // White pawns
-            piece_at_coords.insert(square!(col, R1), piece!(White, major_piece_kind)); // White major pieces
+            piece_at_coords.insert(square!((col, R8)), piece!(Black, major_piece_kind)); // Black major pieces
+            piece_at_coords.insert(square!((col, R7)), piece!(Black, Pawn)); // Black pawns
+            piece_at_coords.insert(square!((col, R2)), piece!(White, Pawn)); // White pawns
+            piece_at_coords.insert(square!((col, R1)), piece!(White, major_piece_kind)); // White major pieces
 
         };
         piece_at_coords
@@ -152,8 +152,8 @@ impl Board {
         for row in Row::iter().rev(){
             for col in Column::iter(){
 
-                let case_color:Color = square!(col, row).get_color();
-                let piece_char = match &self.piece_at_coords(square!(col, row)) {
+                let case_color:Color = square!((col, row)).get_color();
+                let piece_char = match &self.piece_at_coords(square!((col, row))) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };

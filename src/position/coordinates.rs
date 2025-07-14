@@ -2,39 +2,32 @@ use std::i8;
 use std::ops::Add;
 
 use strum_macros::EnumIter;
-use crate::position::board::Board;
+use crate::position::{board::Board};
 use crate::position::color::Color;
 use num_derive; 
-use num_traits;
+use num_traits::{self, FromPrimitive};
 
 pub type SquareVec = Vec<Square>;
 pub type CoordsVec = Vec<Coords>;
 
+#[macro_export]
+macro_rules! col {
+    ($input:expr) => { Column::from($input) }       
+}
+
+#[macro_export]
+macro_rules! row {
+    ($input:expr) => { Row::from($input) }       
+}
 
 #[macro_export]
 macro_rules! square {
-    ($col:expr, $row:expr) => {
-        Square {
-            col: $col,
-            row: $row,
-        }
-    };
+    ($input:expr) => { Square::from($input) }       
 }
+
 #[macro_export]
-macro_rules! idxcoords {
-    ($col:expr, $row:expr) => {
-        Coords {
-            col: $col,
-            row: $row,
-        }
-    };
-}
-
-
-#[derive(PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Square {
-    pub col: Column,
-    pub row: Row,
+macro_rules! coords {
+    ($input:expr) => { Coords::from($input) } 
 }
 
 #[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy, num_derive::FromPrimitive, num_derive::ToPrimitive)]
@@ -61,47 +54,115 @@ pub enum Column{
     H=8,
 }
 
-pub fn coord<T: num_traits::ToPrimitive>(elt: T) -> i8 {
-    elt.to_i8().expect("Enum value must fit in i8")
-}
-
-pub fn from_coord <T: num_traits::FromPrimitive>(idx:i8) -> T {
-    num_traits::FromPrimitive::from_i8(idx).expect("Failed to create enum value out of an i8.")
-}
-
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+pub struct Square { pub col: Column, pub row: Row,}
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Coords { pub col: i8, pub row:i8}
 
+pub fn from_checked_i8 <T: num_traits::FromPrimitive>(value: i8) -> T {
+    num_traits::FromPrimitive::from_i8(value)
+        .expect(&format!("failed to make {} out of {}", std::any::type_name::<T>(), value))
+}
 
+// i8 <> Row <> Column
+impl From <i8> for Row {
+    fn from(elt: i8) -> Self {
+        from_checked_i8(elt)
+    }
+}
+
+impl From <i8> for Column {
+    fn from(elt: i8) -> Self {
+        from_checked_i8(elt)
+    }
+}
+
+impl From <Row> for i8 {
+    fn from(r: Row) -> Self {
+        r as i8
+    }
+}
+
+impl From <Column> for i8 {
+    fn from(c: Column) -> Self {
+        c as i8
+    }
+}
+
+// General Square and Coords methods
 impl Square {
+
     pub fn get_color(&self) -> Color {
-        let product = coord(self.row)*coord(self.col);
+        let product: i8 = self.row as i8 * self.col as i8;
         match product % 2 == 0 {
             true  => Color::White,
             false => Color::Black
         }
     }
+}
 
-    pub fn to_coords(&self) -> Coords {
-         Coords{col: coord(self.col),row: coord(self.row)}
+impl Coords {
+
+    pub fn in_board(&self) -> bool { 
+        (1..=8).contains(&self.col) && (1..=8).contains(&self.row) 
     }
 
-    pub fn to_coord_couple(&self) -> (i8, i8) {
-        let coordsidx = Self::to_coords(&self);
-        (coordsidx.col, coordsidx.row)
-    }
-
-    pub fn from_coords(idx_coordinates:  Coords) -> Self {
-        assert!(idx_coordinates.in_board(), "Tried to create Coords from IdxCoords that are out of board.");
-        Square {
-            col:from_coord(idx_coordinates.col), row: from_coord(idx_coordinates.row),
-        }
-    }
-    pub fn from_coord_couple(c: i8, r: i8) -> Self {
-        let coords = Coords{ col: c, row: r };
-        Self::from_coords(coords)
+    pub fn not_in_board(&self) -> bool {
+        !Self::in_board(&self)
     }
 }
+
+// (i8, i8) <> Coords <> Square
+impl From <Square> for Coords {
+    fn from(square: Square) -> Self {
+        Coords { col: square.col.into(), row: square.row.into() }
+    }
+}
+
+impl From <Coords> for Square {
+    fn from(coordinates: Coords) -> Self {
+        assert!(coordinates.in_board(), "Tried to create Square from Coords that are out of board.");
+        Square  {col: col!(coordinates.col), row: row!(coordinates.row) }
+    }
+}
+
+impl From <(i8, i8)> for Coords {
+    fn from(coord_couple: (i8, i8)) -> Self {
+        Coords{ col: coord_couple.0, row: coord_couple.1 }
+    }
+}
+
+impl From <(i8, i8)> for Square {
+    fn from(coord_couple: (i8, i8)) -> Self {
+        Square::from(Coords::from(coord_couple))
+    }
+}
+
+impl From <Coords> for (i8, i8) {
+    fn from(coords: Coords) -> Self {
+        (coords.col as i8, coords.row as i8)
+    }
+}
+
+impl From <Square> for (i8, i8) {
+    fn from(square: Square) -> Self {
+        Coords::from(square).into()
+    }
+}
+
+impl From <(Column, Row)> for Square {
+    fn from(cr: (Column, Row)) -> Self {
+        Square { col: cr.0 , row: cr.1 }
+    }
+}
+
+impl From <(Column, Row)> for Coords {
+    fn from(cr: (Column, Row)) -> Self {
+        Coords::from(Square::from(cr))
+    }
+}
+
+// Additions for Coords
 
 impl Add for Coords {
     type Output = Self;
@@ -112,21 +173,30 @@ impl Add for Coords {
     }
 }
 
-impl Coords {
-    pub fn in_board(&self) -> bool { 
-        (1..=8).contains(&self.col) && (1..=8).contains(&self.row) 
-    }
-
-    pub fn not_in_board(&self) -> bool {
-        !Self::in_board(&self)
+impl Add <(i8, i8)> for Coords {
+    type Output = Self;
+    fn add(self, added: (i8, i8) ) -> Self {
+        Coords{
+            col: self.col + added.0,
+            row: self.row + added.1 }
     }
 }
 
-impl Add for Square {
-    type Output = Self;
+// Additions for Square
 
-    fn add(self, other: Self) -> Self {
-        Self::from_coords((self.to_coords() + other.to_coords()))
+impl Add <Coords> for Square {
+    type Output = Self;
+    fn add(self, other: Coords) -> Self {
+        let as_coords:Coords = self.into();
+        Self::from(as_coords + other)
+    }
+}
+
+impl Add <(i8, i8)> for Square {
+    type Output = Self;
+    fn add(self, added:(i8,i8)) -> Self {
+        let as_coords = Coords::from(self) ;
+        Square::from(as_coords + added)
     }
 }
 
@@ -149,15 +219,15 @@ impl OpenToColor for SquareVec {
     }
 }
 
-pub trait CoordsVecEquivalent {
+pub trait SquareVecEquivalent {
     fn to_coords_vec(&self) -> SquareVec ;
 }
 
-impl CoordsVecEquivalent for CoordsVec {
+impl SquareVecEquivalent for CoordsVec {
     fn to_coords_vec(&self) -> SquareVec {
         self.iter()
         .filter(|idx|idx.in_board())
-        .map(|&coords|Square::from_coords(coords))
+        .map(|&coords|Square::from(coords))
         .collect()
     }
 }

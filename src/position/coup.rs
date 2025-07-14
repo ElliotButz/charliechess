@@ -16,13 +16,13 @@ impl Coup {
 
     pub fn is_pawn_double_step(&self) -> bool {
         self.piece.kind == PieceKind::Pawn &&
-        (self.start.to_coords().row-self.end.to_coords().row).abs() == 2
+        (self.start.row as i8 - self.end.row as i8).abs() == 2
     }
 
     pub fn coup_zero() -> Self {
         Self {
-            start:  square!(Column::C, Row::R3),
-            end:    square!(Column::B, Row::R1),
+            start:  square!((Column::C, Row::R3)),
+            end:    square!((Column::B, Row::R1)),
             piece:  Piece {color: Color::White, kind: PieceKind::Knight},
             taken:  None,
             checks: false
