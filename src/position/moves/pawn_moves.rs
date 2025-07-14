@@ -46,5 +46,5 @@ pub fn pawn_reachable_squares(board:&Board, square:Square, color:Color) -> Squar
         _ => {}
     };
 
-    in_reach.to_coords_vec()
+    in_reach.to_square_vec()
 } 
