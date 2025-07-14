@@ -162,6 +162,7 @@ impl From <(Column, Row)> for Coords {
     }
 }
 
+
 // Additions for Coords
 
 impl Add for Coords {
@@ -220,13 +221,13 @@ impl OpenToColor for SquareVec {
 }
 
 pub trait SquareVecEquivalent {
-    fn to_coords_vec(&self) -> SquareVec ;
+    fn to_square_vec(&self) -> SquareVec ;
 }
 
 impl SquareVecEquivalent for CoordsVec {
-    fn to_coords_vec(&self) -> SquareVec {
+    fn to_square_vec(&self) -> SquareVec {
         self.iter()
-        .filter(|idx|idx.in_board())
+        .filter(|&idx|idx.in_board())
         .map(|&coords|Square::from(coords))
         .collect()
     }
