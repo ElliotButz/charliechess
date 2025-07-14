@@ -5,7 +5,7 @@ use strum_macros::EnumIter;
 use crate::position::{board::Board};
 use crate::position::color::Color;
 use num_derive; 
-use num_traits::{self, FromPrimitive};
+use num_traits;
 
 pub type SquareVec = Vec<Square>;
 pub type CoordsVec = Vec<Coords>;

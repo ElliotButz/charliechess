@@ -101,6 +101,7 @@ impl Board { // Requesters
     }
 
     pub fn piece_checks_king(&self, piece_coords: Square) -> bool {
+        let piece = self.piece_at_coords(piece_coords).unwrap();
         // TODO
         return false
     }
