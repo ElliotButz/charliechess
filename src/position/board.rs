@@ -5,7 +5,7 @@ use colored::{ColoredString, Colorize};
 use crate::position::coup::Coup;
 use crate::{square, piece};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::coordinates::{Square, Row, Row::*, Column, Column::*, SquareVec};
+use crate::position::coordinates::{Row, Row::*, Column, Column::*, Coords, Square, CoordsVec, SquareVec};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Square,Piece>;
@@ -34,8 +34,8 @@ impl Board { // Initiators and init helpers
             white_king_has_moved:    false,
             white_a_tower_has_moved: false,
             white_h_tower_has_moved: false,
-            squares_with_pined_pieces  : SquareVec::with_capacity(12),
-            squares_with_pining_pieces : SquareVec::with_capacity(12),
+            squares_with_pined_pieces  : SquareVec::with_capacity(8),
+            squares_with_pining_pieces : SquareVec::with_capacity(8),
         }
     }
 
@@ -74,8 +74,8 @@ impl Board { // Initiators and init helpers
 
 impl Board { // Requesters
     
-    pub fn piece_at_coords(&self, coords: Square) -> Option<Piece> {
-        self.map.get(&coords).copied()
+    pub fn piece_at_square(&self, square: Square) -> Option<Piece> {
+        self.map.get(&square).copied()
     }
 
     pub fn color_of_piece_at(&self, square: Square) -> Option<Color> {
@@ -87,7 +87,7 @@ impl Board { // Requesters
     }
 
     pub fn square_is_free(&self, square: Square) -> bool {
-        match self.piece_at_coords(square) {
+        match self.piece_at_square(square) {
             None => true,
             _ => false
         }
@@ -101,10 +101,44 @@ impl Board { // Requesters
     }
 
     pub fn piece_checks_king(&self, piece_coords: Square) -> bool {
-        let piece = self.piece_at_coords(piece_coords).unwrap();
+        let piece = self.piece_at_square(piece_coords).unwrap();
         // TODO
         return false
     }
+
+    pub fn step_til_piece(&self, start: Square, step: Coords) -> (CoordsVec, Option<Piece>) {
+        let cstart: Coords = start.into();
+        let mut found_piece: Option<Piece> = None;
+        let mut in_path = CoordsVec::with_capacity(8);
+        let mut n_steps: i8 = 1;  
+        loop {
+            let target: Coords = cstart + step * n_steps ;
+            if target.not_in_board() {break}
+            else {
+                in_path.push(target);
+                match self.piece_at_square(target.into()) {
+                    Some(piece) => {found_piece = Some(piece); break },
+                    None => ()
+                }
+             }
+            n_steps += 1;
+        }
+    return (in_path, found_piece) 
+    }
+
+    pub fn step_til_piece_of_color(&self, start: Square, step: Coords, target_color: Color) -> (CoordsVec, Option<Piece>) {
+        
+        let (mut in_path, found_piece) = self.step_til_piece(start, step);
+        if in_path.len() == 0 { return (in_path, found_piece)}
+        match found_piece {
+            Some(piece) => {
+                if piece.color != target_color {in_path.pop();}
+            }
+            None => ()
+        }
+        return (in_path, found_piece)
+    }
+
 }
 
 impl Board { // Editors
@@ -154,7 +188,7 @@ impl Board {
             for col in Column::iter(){
 
                 let case_color:Color = square!((col, row)).get_color();
-                let piece_char = match &self.piece_at_coords(square!((col, row))) {
+                let piece_char = match &self.piece_at_square(square!((col, row))) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };
