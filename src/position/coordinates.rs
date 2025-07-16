@@ -110,6 +110,7 @@ impl Coords {
     pub fn not_in_board(&self) -> bool {
         !Self::in_board(&self)
     }
+
 }
 
 // (i8, i8) <> Coords <> Square
@@ -162,8 +163,7 @@ impl From <(Column, Row)> for Coords {
     }
 }
 
-
-// Additions for Coords
+// Operation for Coords
 
 impl Add for Coords {
     type Output = Self;
@@ -180,6 +180,14 @@ impl Add <(i8, i8)> for Coords {
         Coords{
             col: self.col + added.0,
             row: self.row + added.1 }
+    }
+}
+
+impl std::ops::Mul<i8> for Coords {
+    type Output = Self;
+    fn mul(self, m: i8) -> Self {
+        let (colidx, rowidx): (i8, i8) = self.into();
+        coords!((colidx*m, rowidx*m))
     }
 }
 
