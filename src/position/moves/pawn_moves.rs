@@ -5,16 +5,16 @@ use crate::position::board::Board;
 use crate::position::coup::Coup;
 
 
-pub fn pawn_reachable_squares(board:&Board, square:Square, color:Color) -> SquareVec {
+pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> SquareVec {
     // Makes a vector of squares coordinates where a pawn can go, given its start squart, its color, and the board to which the pawn belongs.
     // This function does not take in account the fact that the pawn might be pined, since it's more efficient to calculate the reachable 
     // squares of the pieces that are not pinned only.
     let direction: i8 = color.as_direction();
-    let (square_rowidx, square_colidx) = square.into();
+    let (start_rowidx, start_colidx) = start.into();
     let mut in_reach = CoordsVec::with_capacity(4);
 
     // One square forward 
-    let next_square: Coords = coords!((square_colidx, square_rowidx + direction)); // square in front of the pawn.
+    let next_square: Coords = coords!((start_colidx, start_rowidx + direction)); // square in front of the pawn.
     let next_square_is_free: bool = board.square_is_free(square!(next_square));
     if  next_square_is_free { in_reach.push(next_square) } ;
 
@@ -27,20 +27,20 @@ pub fn pawn_reachable_squares(board:&Board, square:Square, color:Color) -> Squar
         }
     }
 
-    match (square.row, color) { 
+    match (start.row, color) { 
         // If pawn is at its start pos, it can take 2 steps forward
         (R2, White) | (R7, Black) => {
-            if next_square_is_free && board.square_is_free(square + (0, 2*direction)) {
-                in_reach.push(coords!((square_colidx, square_rowidx+2*direction)))
+            if next_square_is_free && board.square_is_free(start + (0, 2*direction)) {
+                in_reach.push(coords!((start_colidx, start_rowidx+2*direction)))
             };
         },
         // Pawn no jutsu: En Passant
         (R5, White) | (R4, Black) => { 
             let last_move:Coup = board.last_move;
             let last_move_colidx = last_move.start.col as i8;
-            let col_idx_diff = ( last_move_colidx - square_colidx ).abs();
+            let col_idx_diff = ( last_move_colidx - start_colidx ).abs();
             if  last_move.is_pawn_double_step() && col_idx_diff==1 { // the last moove is a double step froma pawn on an adjacent column, En Passant is possible.
-                in_reach.push(coords!((square_colidx, square_rowidx + direction)))
+                in_reach.push(coords!((start_colidx, start_rowidx + direction)))
             }
         },
         _ => {}
