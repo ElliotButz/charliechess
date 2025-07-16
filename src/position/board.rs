@@ -5,19 +5,17 @@ use colored::{ColoredString, Colorize};
 use crate::position::coup::Coup;
 use crate::{square, piece};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::coordinates::{Row, Row::*, Column, Column::*, Coords, Square, CoordsVec, SquareVec};
+use crate::position::coordinates::{Column::{self, *}, Coords, CoordsVec, Row::{self, *}, Square, SquareVec, SquareVecEquivalent};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Square,Piece>;
 pub struct Board {
     pub map: BoardMap,
     pub last_move: Coup,
-    pub black_king_has_moved: bool,
-    pub black_a_tower_has_moved: bool,
-    pub black_h_tower_has_moved: bool,
-    pub white_king_has_moved: bool,
-    pub white_a_tower_has_moved: bool,
-    pub white_h_tower_has_moved: bool,
+    black_king_can_h_rook: bool,
+    black_king_can_a_rook: bool,
+    white_king_can_h_rook: bool,
+    white_king_can_a_rook: bool,
     pub squares_with_pined_pieces : SquareVec,
     pub squares_with_pining_pieces: SquareVec   
 }
@@ -28,12 +26,10 @@ impl Board { // Initiators and init helpers
         Board {
             map: BoardMap::with_capacity(64),
             last_move: Coup::coup_zero(),
-            black_king_has_moved:    false,
-            black_a_tower_has_moved: false,
-            black_h_tower_has_moved: false,
-            white_king_has_moved:    false,
-            white_a_tower_has_moved: false,
-            white_h_tower_has_moved: false,
+            black_king_can_h_rook: false,
+            black_king_can_a_rook: false,
+            white_king_can_h_rook: false,
+            white_king_can_a_rook: false,
             squares_with_pined_pieces  : SquareVec::with_capacity(8),
             squares_with_pining_pieces : SquareVec::with_capacity(8),
         }
@@ -86,6 +82,23 @@ impl Board { // Requesters
         }     
     }
 
+    pub fn targetables_and_stared_pieces(&self, squares: SquareVec, target_color: Color ) -> (SquareVec, Vec<Piece>) {
+        let mut targetables = SquareVec::new();
+        let mut stared:Vec<Piece> = Vec::new();
+        for square in squares.iter() {
+            let mut can_go = true;
+            match self.piece_at_square(*square) {
+                None => (),
+                Some(piece) => {
+                    if piece.color != target_color { can_go = false };
+                    stared.push(piece);
+                } 
+            }
+            if can_go {targetables.push(*square)}
+        }
+    (targetables, stared)
+    }
+
     pub fn square_is_free(&self, square: Square) -> bool {
         match self.piece_at_square(square) {
             None => true,
@@ -106,7 +119,9 @@ impl Board { // Requesters
         return false
     }
 
-    pub fn step_til_piece(&self, start: Square, step: Coords) -> (CoordsVec, Option<Piece>) {
+    pub fn step_til_piece(&self, start: Square, step: Coords) -> (SquareVec, Option<Piece>) {
+        // Makes a vector [start + n * step, with n in 1..=N, with N the first n for which start + n * step contains a piece ]
+        // Returns the Option<found_piece> too.
         let cstart: Coords = start.into();
         let mut found_piece: Option<Piece> = None;
         let mut in_path = CoordsVec::with_capacity(8);
@@ -123,11 +138,31 @@ impl Board { // Requesters
              }
             n_steps += 1;
         }
-    return (in_path, found_piece) 
+        in_path.retain(|&coord| coord.in_board());
+        return (in_path.to_square_vec(), found_piece) 
     }
 
-    pub fn step_til_piece_of_color(&self, start: Square, step: Coords, target_color: Color) -> (CoordsVec, Option<Piece>) {
-        
+    pub fn step_in_directions_til_piece(&self, start: Square, directions: Vec<(i8, i8)>) -> (SquareVec, Vec<Piece>) {
+
+        let mut in_all_paths = SquareVec::with_capacity(8);
+        let mut found_pieces = Vec::with_capacity(directions.len());
+
+        for &direction in directions.iter() {
+            let (mut in_path, found_piece) = self.step_til_piece(start, direction.into());
+            in_all_paths.append(&mut in_path);
+            match found_piece {
+                Some(piece) => found_pieces.push(piece),
+                None => ()
+            }
+        }
+        (in_all_paths, found_pieces)
+    }
+
+
+    pub fn step_til_target(&self, start: Square, step: Coords, target_color: Color) -> (SquareVec, Option<Piece>) {
+        // Makes a vector [start + n * step, with n in 1..=N, with N the first n for which start + n * step contains a piece ].
+        // If the found piece is not of the target color, the last element of the vector is excluded.
+        // Returns the Option<found_piece> too, so that one know which piece blocks the path of another one.
         let (mut in_path, found_piece) = self.step_til_piece(start, step);
         if in_path.len() == 0 { return (in_path, found_piece)}
         match found_piece {
@@ -137,6 +172,22 @@ impl Board { // Requesters
             None => ()
         }
         return (in_path, found_piece)
+    }
+
+    pub fn step_in_directions_til_target(&self, start: Square, directions: Vec<(i8, i8)>, target_color: Color) -> (SquareVec, Vec<Piece>) {
+
+        let mut in_all_paths = SquareVec::new();
+        let mut found_pieces = Vec::with_capacity(directions.len());
+
+        for &direction in directions.iter() {
+            let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color.the_other());
+            in_all_paths.append(&mut in_path);
+            match found_piece {
+                Some(piece) => found_pieces.push(piece),
+                None => ()
+            }
+        }
+        (in_all_paths, found_pieces)
     }
 
 }
