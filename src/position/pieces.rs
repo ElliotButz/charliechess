@@ -11,7 +11,7 @@ macro_rules! piece {
     };
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Piece {
     pub color: Color,
     pub kind: PieceKind,
@@ -42,7 +42,7 @@ impl Piece {
     }
 }
 
-#[derive(Clone, Copy, Display, Eq, PartialEq)]
+#[derive(Clone, Copy, Display, Eq, PartialEq, Debug)]
 pub enum PieceKind {
     Queen,
     Tower,

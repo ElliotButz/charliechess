@@ -1,5 +1,6 @@
 use std::i8;
 use std::ops::Add;
+use std::fmt;
 
 use strum_macros::EnumIter;
 use crate::position::{board::Board};
@@ -42,7 +43,7 @@ pub enum Row {
     R8=8,
 }
 
-#[derive(EnumIter, PartialEq, Hash, Eq,  Clone, Copy,  num_derive::FromPrimitive, num_derive::ToPrimitive)]
+#[derive(EnumIter, PartialEq, Hash, Eq,  Clone, Copy,  num_derive::FromPrimitive, num_derive::ToPrimitive, Debug)]
 pub enum Column{
     A=1,
     B=2,
@@ -56,7 +57,7 @@ pub enum Column{
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Square { pub col: Column, pub row: Row,}
-#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Coords { pub col: i8, pub row:i8}
 
 pub fn from_checked_i8 <T: num_traits::FromPrimitive>(value: i8) -> T {
@@ -238,5 +239,18 @@ impl SquareVecEquivalent for CoordsVec {
         .filter(|&idx|idx.in_board())
         .map(|&coords|Square::from(coords))
         .collect()
+    }
+}
+
+impl fmt::Debug for Square {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}{:?}", self.col, self.row)
+    }
+}
+
+impl fmt::Debug for Row {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let row_value = *self as i8;
+        write!(f, "{}", row_value)
     }
 }

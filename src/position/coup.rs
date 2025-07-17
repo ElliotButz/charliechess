@@ -3,7 +3,7 @@ use crate::position::pieces::{Piece,PieceKind};
 use crate::position::color::Color;
 use crate::square;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Coup {
     pub start:  Square,
     pub end:    Square,

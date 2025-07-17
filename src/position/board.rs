@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use strum::IntoEnumIterator;
 use colored::{ColoredString, Colorize};
+use std::fmt;
 
 use crate::position::coup::Coup;
 use crate::{square, piece};
@@ -9,6 +10,7 @@ use crate::position::coordinates::{Column::{self, *}, Coords, CoordsVec, Row::{s
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Square,Piece>;
+#[derive(Debug)]
 pub struct Board {
     pub map: BoardMap,
     pub last_move: Coup,
@@ -19,7 +21,6 @@ pub struct Board {
     pub squares_with_pined_pieces : SquareVec,
     pub squares_with_pining_pieces: SquareVec   
 }
-
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
@@ -231,8 +232,8 @@ impl Board { // Editors
 }
 
 
-impl Board {
-    pub fn terminal_display(&self) {
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
 
         let mut board_str = String::from(".  .  .  .  .  .  .  .  .\n");
         for row in Row::iter().rev(){
@@ -254,6 +255,7 @@ impl Board {
             }
             board_str.push_str(".\n");
         }
-        println!("{}",board_str);
+        write!(f, "{}", board_str)
     }
+
 }
