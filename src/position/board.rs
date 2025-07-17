@@ -10,7 +10,7 @@ use crate::position::coordinates::{Column::{self, *}, Coords, CoordsVec, Row::{s
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 
 pub type BoardMap = HashMap<Square,Piece>;
-#[derive(Debug)]
+#[allow(dead_code)]
 pub struct Board {
     pub map: BoardMap,
     pub last_move: Coup,
@@ -21,6 +21,7 @@ pub struct Board {
     pub squares_with_pined_pieces : SquareVec,
     pub squares_with_pining_pieces: SquareVec   
 }
+
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
@@ -71,7 +72,7 @@ impl Board { // Initiators and init helpers
 
 impl Board { // Requesters
     
-    pub fn piece_at_square(&self, square: Square) -> Option<Piece> {
+    pub fn piece_at(&self, square: Square) -> Option<Piece> {
         self.map.get(&square).copied()
     }
 
@@ -84,24 +85,27 @@ impl Board { // Requesters
     }
 
     pub fn targetables_and_stared_pieces(&self, squares: SquareVec, target_color: Color ) -> (SquareVec, Vec<Piece>) {
+
         let mut targetables = SquareVec::new();
         let mut stared:Vec<Piece> = Vec::new();
+
         for square in squares.iter() {
             let mut can_go = true;
-            match self.piece_at_square(*square) {
+            match self.piece_at(*square) {
                 None => (),
                 Some(piece) => {
-                    if piece.color != target_color { can_go = false };
+                    if piece.color != target_color { can_go = false }
                     stared.push(piece);
                 } 
             }
+            // println!("{}", can_go);
             if can_go {targetables.push(*square)}
         }
     (targetables, stared)
     }
 
     pub fn square_is_free(&self, square: Square) -> bool {
-        match self.piece_at_square(square) {
+        match self.piece_at(square) {
             None => true,
             _ => false
         }
@@ -115,7 +119,7 @@ impl Board { // Requesters
     }
 
     pub fn piece_checks_king(&self, piece_coords: Square) -> bool {
-        let piece = self.piece_at_square(piece_coords).unwrap();
+        let _piece = self.piece_at(piece_coords).unwrap();
         // TODO
         return false
     }
@@ -132,7 +136,7 @@ impl Board { // Requesters
             if target.not_in_board() {break}
             else {
                 in_path.push(target);
-                match self.piece_at_square(target.into()) {
+                match self.piece_at(target.into()) {
                     Some(piece) => {found_piece = Some(piece); break },
                     None => ()
                 }
@@ -168,10 +172,13 @@ impl Board { // Requesters
         if in_path.len() == 0 { return (in_path, found_piece)}
         match found_piece {
             Some(piece) => {
-                if piece.color != target_color {in_path.pop();}
+                if piece.color != target_color {
+                    in_path.pop();
+                }
             }
             None => ()
         }
+        // println!("blip");
         return (in_path, found_piece)
     }
 
@@ -181,7 +188,7 @@ impl Board { // Requesters
         let mut found_pieces = Vec::with_capacity(directions.len());
 
         for &direction in directions.iter() {
-            let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color.the_other());
+            let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color);
             in_all_paths.append(&mut in_path);
             match found_piece {
                 Some(piece) => found_pieces.push(piece),
@@ -240,7 +247,7 @@ impl fmt::Display for Board {
             for col in Column::iter(){
 
                 let case_color:Color = square!((col, row)).get_color();
-                let piece_char = match &self.piece_at_square(square!((col, row))) {
+                let piece_char = match &self.piece_at(square!((col, row))) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };

@@ -7,6 +7,7 @@ struct History {
     coups: CoupSerie
 }
 
+#[allow(dead_code)]
 impl History {
 
     pub fn add_coup(&mut self, coup: Coup) {
