@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::position::coordinates::types_and_structs::{Column, Row, Square, CoordsVec, SquareVec};
+use crate::position::coordinates::types_and_structs::{Column, Row, Square};
 
 impl fmt::Display for Column {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
