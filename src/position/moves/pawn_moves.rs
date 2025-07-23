@@ -1,15 +1,14 @@
 extern crate unwrap;
 use unwrap::unwrap;
 
-
 use crate::{coords};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::coordinates::{Square, Row::*, SquareVec, Coords};
 use crate::position::board::Board;
 use crate::position::coup::Coup;
+use crate::position::coordinates::types_and_structs::{Square, SquareVec, Row::*};
 use crate::position::pieces::Piece;
 
-pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {
+pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {
     // Makes a vector of squares coordinates where a pawn can go, given its start squart, its color, and the board to which the pawn belongs.
     // This function does not take in account the fact that the pawn might be pined, since it's more efficient to calculate the reachable 
     // squares of the pieces that are not pinned only.

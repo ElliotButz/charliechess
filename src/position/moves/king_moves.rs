@@ -1,6 +1,8 @@
 use crate::position::color::Color;
-use crate::position::coordinates::{Coords, CoordsVec, Square, SquareVec, SquareVecEquivalent};
 use crate::position::board::Board;
+use crate::position::coordinates::{
+    converters::SquareVecEquivalent,
+    types_and_structs::{Coords, CoordsVec, Square, SquareVec}};
 use crate::position::pieces::Piece;
 
 pub fn king_reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {

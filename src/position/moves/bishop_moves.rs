@@ -1,9 +1,9 @@
 use crate::position::color::Color;
-use crate::position::coordinates::{Square, SquareVec};
 use crate::position::board::Board;
+use crate::position::coordinates::types_and_structs::{Square, SquareVec};
 use crate::position::pieces::Piece;
 
-pub fn bishop_reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {
+pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {
     // Makes a vector of squares coordinates where a Knight can go, given its start squart, its color, and its board.
     // This function does not take in account the fact that the piece might be pined, since it's more efficient to calculate the reachable 
     // squares of the pieces that are not pinned only.

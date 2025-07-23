@@ -1,5 +1,5 @@
 use crate::position::color::Color;
-use crate::position::coordinates::{Square, SquareVec};
+use crate::position::coordinates::types_and_structs::{Square, SquareVec};
 use crate::position::board::Board;
 use crate::position::pieces::Piece;
 

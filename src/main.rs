@@ -1,8 +1,9 @@
 extern crate num_derive;
 
 pub mod position;
+use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
 
-use crate::position::{board::Board, coordinates::{Column::*, Row::*, Square}};
+use crate::position::board::Board;
 fn main() {
     let mut board = Board::at_start_state();
     board.move_piece(square!((E,R2)), square!((E,R4)));

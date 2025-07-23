@@ -1,6 +1,5 @@
 use std::fmt;
-
-use crate::position::coordinates::{Column, Row, Square};
+use crate::position::coordinates::types_and_structs::{Row, Column, Square};
 use crate::position::pieces::{Piece,PieceKind};
 use crate::position::color::Color;
 use crate::square;
