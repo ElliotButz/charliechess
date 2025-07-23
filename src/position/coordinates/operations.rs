@@ -4,6 +4,7 @@ use crate::coords;
 use crate::position::{color::Color, coordinates::types_and_structs::{Coords, Square}};
 
 // General Square and Coords methods
+
 impl Square {
 
     pub fn get_color(&self) -> Color {
