@@ -63,7 +63,7 @@ pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (Squar
             let last_move:Coup = board.last_move;
             let last_move_colidx = last_move.start.col as i8;
             let col_idx_diff = ( last_move_colidx - start_colidx ).abs();
-            if  last_move.is_pawn_double_step() && col_idx_diff==1 { // the last moove is a double step froma pawn on an adjacent column, En Passant is possible.
+            if  last_move.is_pawn_double_step() && col_idx_diff==1 { // If the last moove is a double step from a pawn on an adjacent column, En Passant is possible.
                 let en_passant_target = start + (last_move_colidx as i8, direction) ;
                 in_reach.push(en_passant_target);
                 found_pieces.push(unwrap!(board.piece_at(en_passant_target), "Expected a piece at {:?}, found None.", en_passant_target));

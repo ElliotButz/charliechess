@@ -17,10 +17,7 @@ fn main() {
     println!("{board}");
 
     for (square, piece) in board.map.iter() {
-        println!("{:?} {:?} {:?}", square, piece.color, piece.kind);
-
         println!("{:?} {:?} {:?} {:?}", square, piece.color, piece.kind, position::moves_for_piece_at_square(&board, *square))
     }
-
 
 }
