@@ -1,3 +1,5 @@
+use std::fmt;
+
 use strum_macros::Display;
 use crate::position::color::Color; 
 
@@ -50,4 +52,10 @@ pub enum PieceKind {
     Knight,
     Pawn,
     King,
+}
+
+impl fmt::Display for Piece {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} {}", self.color, self.kind)
+    }
 }

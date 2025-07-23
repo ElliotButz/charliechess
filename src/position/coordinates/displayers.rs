@@ -1,12 +1,6 @@
 use std::fmt;
 
-use crate::position::coordinates::types_and_structs::{Column, Row, Square};
-
-impl fmt::Display for Square {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.col, self.row)
-    }
-}
+use crate::position::coordinates::types_and_structs::{Column, Row, Square, CoordsVec, SquareVec};
 
 impl fmt::Display for Column {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -28,4 +22,26 @@ impl fmt::Display for Row {
         let row_value = *self as i8;
         write!(f, "{}", row_value)
     }
+}
+
+impl fmt::Display for Square {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.col, self.row)
+    }
+}
+
+pub fn vec2str<T: std::fmt::Display>(vector: &Vec<T>) -> String {
+    if vector.is_empty() {
+        return "[]".to_string();
+    }
+    
+    let mut out_str = String::from("[");
+    for (i, item) in vector.iter().enumerate() {
+        if i > 0 {
+            out_str.push_str(", ");
+        }
+        out_str.push_str(&format!("{item}"));
+    }
+    out_str.push(']');
+    out_str       
 }
