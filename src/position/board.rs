@@ -216,24 +216,23 @@ impl Board { // Editors
         self.map.insert(coords, piece);
     }
 
-    pub fn move_piece(&mut self, start_square: Square, target_square: Square) -> Coup {
+    pub fn move_piece(&mut self, start_square: Square, target_square: Square) {
     /*
     1: Extract the Piece at start_square (it is displaced: Piece),
     2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
     3: Place the Piece displaced from start_square at target_square,
-    4: Return the coup. Shall be used to update board.
+    4: Update board.
     */
         let displaced: Piece = self.extract_piece_of_square(start_square);
         let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
         self.add_piece_at_coords(target_square, displaced);
-        let coup = Coup {
+        self.last_move = Coup {
             start: start_square,
             end  : target_square,
             piece: displaced,
             taken: taken,
             checks: self.piece_checks_king(target_square)
         };
-        coup
     }
 
 }

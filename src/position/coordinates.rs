@@ -31,7 +31,7 @@ macro_rules! coords {
     ($input:expr) => { Coords::from($input) } 
 }
 
-#[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy, num_derive::FromPrimitive, num_derive::ToPrimitive)]
+#[derive(EnumIter, PartialEq, Eq, Hash, Clone, Copy, num_derive::FromPrimitive, num_derive::ToPrimitive, Debug)]
 pub enum Row {
     R1=1,
     R2=2,
@@ -55,7 +55,7 @@ pub enum Column{
     H=8,
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Square { pub col: Column, pub row: Row,}
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Coords { pub col: i8, pub row:i8}
@@ -242,13 +242,28 @@ impl SquareVecEquivalent for CoordsVec {
     }
 }
 
-impl fmt::Debug for Square {
+impl fmt::Display for Square {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}{:?}", self.col, self.row)
+        write!(f, "{}{}", self.col, self.row)
     }
 }
 
-impl fmt::Debug for Row {
+impl fmt::Display for Column {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::A => write!(f, "A"),
+            Self::B => write!(f, "B"),
+            Self::C => write!(f, "C"),
+            Self::D => write!(f, "D"),
+            Self::E => write!(f, "E"),
+            Self::F => write!(f, "F"),
+            Self::G => write!(f, "G"),
+            Self::H => write!(f, "H"),
+        }
+    }
+}
+
+impl fmt::Display for Row {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let row_value = *self as i8;
         write!(f, "{}", row_value)

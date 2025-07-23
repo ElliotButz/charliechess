@@ -1,9 +1,11 @@
+use std::fmt;
+
 use crate::position::coordinates::{Column, Row, Square};
 use crate::position::pieces::{Piece,PieceKind};
 use crate::position::color::Color;
 use crate::square;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct Coup {
     pub start:  Square,
     pub end:    Square,
@@ -27,6 +29,12 @@ impl Coup {
             taken:  None,
             checks: false
         }
+    }
+}
+
+impl fmt::Display for Coup {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}-{}", self.start, self.end)
     }
 }
 

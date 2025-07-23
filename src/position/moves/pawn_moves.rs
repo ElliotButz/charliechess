@@ -24,7 +24,7 @@ pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (Squar
     let next_square: Square = start + (0, direction); // square in front of the pawn.
     let next_square_is_free: bool = board.square_is_free(next_square);
     if next_square_is_free { in_reach.push(next_square) } else {
-        found_pieces.push(unwrap!(board.piece_at(next_square), "Expected a piece at {:?}, found None.", next_square))} ;
+        found_pieces.push(unwrap!(board.piece_at(next_square), "Expected a piece at {}, found None.", next_square))} ;
 
     // Normal take
     for colshift in [-1i8,1i8] {
@@ -35,7 +35,7 @@ pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (Squar
                 if target_piece_color != color {
                     in_reach.push(potential_target_square);
                     found_pieces.push(
-                        unwrap!(board.piece_at(potential_target_square), "Expected a piece at {:?}, found None.", potential_target_square)
+                        unwrap!(board.piece_at(potential_target_square), "Expected a piece at {}, found None.", potential_target_square)
                     );
                 };
             },
@@ -53,7 +53,7 @@ pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (Squar
                 else { found_pieces.push(
                     unwrap!(
                         board.piece_at(double_step_target),
-                        "Expected a piece at {:?}, found None.", double_step_target))
+                        "Expected a piece at {}, found None.", double_step_target))
                     }
             }
 
@@ -63,10 +63,11 @@ pub fn pawn_reachable_squares(board:&Board, start:Square, color:Color) -> (Squar
             let last_move:Coup = board.last_move;
             let last_move_colidx = last_move.start.col as i8;
             let col_idx_diff = ( last_move_colidx - start_colidx ).abs();
+            println!("-------PAWN MOVE {},{},{}", last_move, last_move_colidx, col_idx_diff);
             if  last_move.is_pawn_double_step() && col_idx_diff==1 { // If the last moove is a double step from a pawn on an adjacent column, En Passant is possible.
                 let en_passant_target = start + (last_move_colidx as i8, direction) ;
                 in_reach.push(en_passant_target);
-                found_pieces.push(unwrap!(board.piece_at(en_passant_target), "Expected a piece at {:?}, found None.", en_passant_target));
+                found_pieces.push(unwrap!(board.piece_at(en_passant_target), "Expected a piece at {}, found None.", en_passant_target));
             }
         },
         _ => {}

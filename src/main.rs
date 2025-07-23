@@ -13,11 +13,16 @@ fn main() {
     board.move_piece(square!((E,R5)), square!((D,R4)));
     board.move_piece(square!((F,R3)), square!((D,R4)));
     board.move_piece(square!((A,R7)), square!((A,R5)));
+    board.move_piece(square!((B,R1)), square!((C,R3)));
+    board.move_piece(square!((A,R5)), square!((A,R4)));
+    board.move_piece(square!((B,R2)), square!((B,R4)));
+
+
 
     println!("{board}");
 
     for (square, piece) in board.map.iter() {
-        println!("{:?} {:?} {:?} {:?}", square, piece.color, piece.kind, position::moves_for_piece_at_square(&board, *square))
+        println!("{} {} {} {:?}", square, piece.color, piece.kind, position::moves_for_piece_at_square(&board, *square))
     }
 
 }
