@@ -3,7 +3,7 @@ use unwrap::unwrap;
 
 use crate::{coords};
 use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::board::Board;
+use crate::position::board::types_and_structs::Board;
 use crate::position::coup::Coup;
 use crate::position::coordinates::types_and_structs::{Square, SquareVec, Row::*};
 use crate::position::pieces::Piece;

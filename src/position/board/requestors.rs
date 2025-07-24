@@ -1,75 +1,8 @@
-use std::collections::HashMap;
-use strum::IntoEnumIterator;
-use colored::{ColoredString, Colorize};
-use std::fmt;
-
-use crate::position::coup::Coup;
-use crate::{square, piece};
-use crate::position::coordinates::types_and_structs::{Column, Column::*, Row, Row::*, Square, SquareVec, Coords, CoordsVec};
+use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
 use crate::position::coordinates::converters::SquareVecEquivalent;
-use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
-
-pub type BoardMap = HashMap<Square,Piece>;
-#[allow(dead_code)]
-pub struct Board {
-    pub map: BoardMap,
-    pub last_move: Coup,
-    black_king_can_h_rook: bool,
-    black_king_can_a_rook: bool,
-    white_king_can_h_rook: bool,
-    white_king_can_a_rook: bool,
-    pub squares_with_pined_pieces : SquareVec,
-    pub squares_with_pining_pieces: SquareVec   
-}
-
-impl Board { // Initiators and init helpers
-
-    pub fn new() -> Board { // Initiator
-        Board {
-            map: BoardMap::with_capacity(64),
-            last_move: Coup::coup_zero(),
-            black_king_can_h_rook: false,
-            black_king_can_a_rook: false,
-            white_king_can_h_rook: false,
-            white_king_can_a_rook: false,
-            squares_with_pined_pieces  : SquareVec::with_capacity(8),
-            squares_with_pining_pieces : SquareVec::with_capacity(8),
-        }
-    }
-
-    pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator
-        let mut board = Board::new();
-        board.map = piece_by_coords;
-        board
-    }
-
-    pub fn at_start_state() -> Board { // Initiator
-        Board::from_boardmap(Board::make_start_state())
-    }
-
-    pub fn make_start_state() -> BoardMap { // init Helper
-
-        let mut piece_at_coords= BoardMap::with_capacity(64);
-        for col in Column::iter(){
-            
-            let major_piece_kind:PieceKind = match col {
-                A | H => Tower,
-                B | G => Knight,
-                C | F => Bishop,
-                D => Queen,
-                E => King,
-            };
-
-            piece_at_coords.insert(square!((col, R8)), piece!(Black, major_piece_kind)); // Black major pieces
-            piece_at_coords.insert(square!((col, R7)), piece!(Black, Pawn)); // Black pawns
-            piece_at_coords.insert(square!((col, R2)), piece!(White, Pawn)); // White pawns
-            piece_at_coords.insert(square!((col, R1)), piece!(White, major_piece_kind)); // White major pieces
-
-        };
-        piece_at_coords
-    }
-}
+use crate::position::color::Color;
+use crate::position::pieces::Piece;
+use crate::position::board::types_and_structs::Board;
 
 impl Board { // Requesters
     
@@ -169,6 +102,7 @@ impl Board { // Requesters
         return (in_path.to_square_vec(), found_pieces) 
     }
 
+
     pub fn step_in_directions_til_piece(&self, start: Square, directions: Vec<(i8, i8)>) -> (SquareVec, Vec<Piece>) {
 
         let mut in_all_paths = SquareVec::with_capacity(8);
@@ -218,88 +152,6 @@ impl Board { // Requesters
             }
         }
         (in_all_paths, found_pieces)
-    }
-
-    pub fn step_in_directions_trough_target(&self, start: Square, directions: Vec<(i8, i8)>, target_color: Color) -> (SquareVec, Vec<Piece>) {
-
-        let mut in_all_paths = SquareVec::new();
-        let mut found_pieces = Vec::with_capacity(directions.len()*5);
-
-        for &direction in directions.iter() {
-            let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color);
-            in_all_paths.append(&mut in_path);
-            match found_piece {
-                Some(piece) => found_pieces.push(piece),
-                None => ()
-            }
-        }
-        (in_all_paths, found_pieces)
-    }
-
-}
-
-impl Board { // Editors
-
-    fn extract_piece_of_square(&mut self, square: Square) -> Piece {
-        // Remove a Piece from a square and return it.
-        self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
-    }
-
-    fn extract_optionnal_piece_of_square(&mut self, square: Square) -> Option<Piece> {
-        // Remove an Option<Piece> from a square and return it. It will be None if no Piece was on the square.
-        self.map.remove(&square)
-    }
-
-    fn add_piece_at_coords(&mut self,  coords: Square, piece: Piece) {
-        self.map.insert(coords, piece);
-    }
-
-    pub fn move_piece(&mut self, start_square: Square, target_square: Square) {
-    /*
-    1: Extract the Piece at start_square (it is displaced: Piece),
-    2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
-    3: Place the Piece displaced from start_square at target_square,
-    4: Update board.
-    */
-        let displaced: Piece = self.extract_piece_of_square(start_square);
-        let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
-        self.add_piece_at_coords(target_square, displaced);
-        self.last_move = Coup {
-            start: start_square,
-            end  : target_square,
-            piece: displaced,
-            taken: taken,
-            checks: self.piece_checks_king(target_square)
-        };
-    }
-
-}
-
-
-impl fmt::Display for Board {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-
-        let mut board_str = String::from(".  .  .  .  .  .  .  .  .\n");
-        for row in Row::iter().rev(){
-            for col in Column::iter(){
-
-                let case_color:Color = square!((col, row)).get_color();
-                let piece_char = match &self.piece_at(square!((col, row))) {
-                    Some(piece_at_pos) => piece_at_pos.as_char(),
-                    None => ' '
-                };
-                let piece_str = String::from(piece_char);
-                let piece_on_case_str: ColoredString = match case_color {
-                    White => piece_str.on_color("white"),
-                    Black => piece_str.on_color("grey")
-                };
-                board_str.push_str(".");
-                board_str.push_str(&piece_on_case_str);
-                board_str.push_str(" ");
-            }
-            board_str.push_str(".\n");
-        }
-        write!(f, "{}", board_str)
     }
 
 }

@@ -4,7 +4,7 @@ pub mod position;
 use crate::position::coordinates::displayers::vec2str;
 use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
 
-use crate::position::board::Board;
+use crate::position::board::types_and_structs::Board;
 fn main() {
     let mut board = Board::at_start_state();
     board.move_piece(square!((E,R2)), square!((E,R4)));

@@ -1,0 +1,56 @@
+use strum::IntoEnumIterator;
+use crate::position::board::types_and_structs::BoardMap;
+use crate::position::coup::Coup;
+use crate::{square, piece};
+use crate::position::coordinates::types_and_structs::{Column, Column::*, Row::*, SquareVec};
+use crate::position::color::Color::{White, Black};
+use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
+use crate::position::board::types_and_structs::Board;
+
+impl Board { // Initiators and init helpers
+
+    pub fn new() -> Board { // Initiator
+        Board {
+            map: BoardMap::with_capacity(64),
+            last_move: Coup::coup_zero(),
+            black_king_can_h_rook: false,
+            black_king_can_a_rook: false,
+            white_king_can_h_rook: false,
+            white_king_can_a_rook: false,
+            squares_with_pined_pieces  : SquareVec::with_capacity(8),
+            squares_with_pining_pieces : SquareVec::with_capacity(8),
+        }
+    }
+
+    pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator
+        let mut board = Board::new();
+        board.map = piece_by_coords;
+        board
+    }
+
+    pub fn at_start_state() -> Board { // Initiator
+        Board::from_boardmap(Board::make_start_state())
+    }
+
+    pub fn make_start_state() -> BoardMap { // init Helper
+
+        let mut piece_at_coords= BoardMap::with_capacity(64);
+        for col in Column::iter(){
+            
+            let major_piece_kind:PieceKind = match col {
+                A | H => Tower,
+                B | G => Knight,
+                C | F => Bishop,
+                D => Queen,
+                E => King,
+            };
+
+            piece_at_coords.insert(square!((col, R8)), piece!(Black, major_piece_kind)); // Black major pieces
+            piece_at_coords.insert(square!((col, R7)), piece!(Black, Pawn)); // Black pawns
+            piece_at_coords.insert(square!((col, R2)), piece!(White, Pawn)); // White pawns
+            piece_at_coords.insert(square!((col, R1)), piece!(White, major_piece_kind)); // White major pieces
+
+        };
+        piece_at_coords
+    }
+}

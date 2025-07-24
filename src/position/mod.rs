@@ -1,5 +1,5 @@
 use crate::position::{
-    board::Board,
+    board::types_and_structs::Board,
     moves::*,
     pieces::{Piece, PieceKind::*},
     coordinates::types_and_structs::{Square,SquareVec}
