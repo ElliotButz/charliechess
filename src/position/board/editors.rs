@@ -1,14 +1,7 @@
-use std::collections::HashMap;
-use strum::IntoEnumIterator;
-use colored::{ColoredString, Colorize};
-use std::fmt;
 
 use crate::position::coup::Coup;
-use crate::{square, piece};
-use crate::position::coordinates::types_and_structs::{Column, Column::*, Row, Row::*, Square, SquareVec, Coords, CoordsVec};
-use crate::position::coordinates::converters::SquareVecEquivalent;
-use crate::position::color::{Color,Color::{White, Black}};
-use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
+use crate::position::coordinates::types_and_structs::Square;
+use crate::position::pieces::Piece;
 use crate::position::board::types_and_structs::Board;
 
 

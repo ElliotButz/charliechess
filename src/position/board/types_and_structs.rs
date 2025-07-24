@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use crate::position::coup::Coup;
 use crate::position::coordinates::types_and_structs::{Square, SquareVec};
-use crate::position::color::{Color};
 use crate::position::pieces::{Piece};
 
 pub type BoardMap = HashMap<Square,Piece>;
