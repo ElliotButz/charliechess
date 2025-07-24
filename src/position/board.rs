@@ -144,8 +144,29 @@ impl Board { // Requesters
              }
             n_steps += 1;
         }
-        in_path.retain(|&coord| coord.in_board());
         return (in_path.to_square_vec(), found_piece) 
+    }
+
+    pub fn step_through_piece(&self, start: Square, step: Coords) -> (SquareVec, Vec<Piece>) {
+        // Makes a vector [start + n * step | n in 1..=N, N being the last n for which start + n * is in board]
+        // Returns a vector of found pieces too.
+        let cstart: Coords = start.into();
+        let mut found_pieces:Vec<Piece> = Vec::with_capacity(7);
+        let mut in_path = CoordsVec::with_capacity(7);
+        let mut n_steps: i8 = 1;  
+        loop {
+            let target: Coords = cstart + step * n_steps ;
+            if target.not_in_board() {break}
+            else {
+                in_path.push(target);
+                match self.piece_at(target.into()) {
+                    Some(piece) => {found_pieces.push(piece)},
+                    None => ()
+                }
+             }
+            n_steps += 1;
+        }
+        return (in_path.to_square_vec(), found_pieces) 
     }
 
     pub fn step_in_directions_til_piece(&self, start: Square, directions: Vec<(i8, i8)>) -> (SquareVec, Vec<Piece>) {
@@ -187,6 +208,22 @@ impl Board { // Requesters
 
         let mut in_all_paths = SquareVec::new();
         let mut found_pieces = Vec::with_capacity(directions.len());
+
+        for &direction in directions.iter() {
+            let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color);
+            in_all_paths.append(&mut in_path);
+            match found_piece {
+                Some(piece) => found_pieces.push(piece),
+                None => ()
+            }
+        }
+        (in_all_paths, found_pieces)
+    }
+
+    pub fn step_in_directions_trough_target(&self, start: Square, directions: Vec<(i8, i8)>, target_color: Color) -> (SquareVec, Vec<Piece>) {
+
+        let mut in_all_paths = SquareVec::new();
+        let mut found_pieces = Vec::with_capacity(directions.len()*5);
 
         for &direction in directions.iter() {
             let (mut in_path, found_piece) = self.step_til_target(start, direction.into(), target_color);
