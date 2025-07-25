@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::position::{
-    board::types_and_structs::Board, coordinates::types_and_structs::{Square,SquareVec}, coup::Coup, moves::*, pieces::{Piece, PieceKind::*}
+    board::types_and_structs::Board, coordinates::types_and_structs::{Square,SquareVec}, coup::Coup, moves::basic_piece_moves::*, pieces::{Piece, PieceKind::*}
 };
 
 pub mod board;
@@ -46,7 +46,6 @@ pub fn all_moves(board: &Board) -> Vec<Coup> {
 
 pub fn threatened_squares(board: &Board) -> SquareVec {
     all_moves(board).iter().map(|coup| coup.end).collect()
-    
 }
 /* 
 pub fn castle_possibilities(board:&Board) -> HashMap<str, bool> {
