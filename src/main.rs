@@ -22,7 +22,9 @@ fn main() {
     println!("{board}");
 
     let possible_moves = position::all_moves(&board);
-    println!("{}", vec2str(&possible_moves));
+    println!("Possible moves: {}", vec2str(&possible_moves));
+
+    println!("Threatened sqaures: {}",vec2str(&position::threatened_squares(&board)));
 
     for (&square, piece) in board.map.iter() {
         let (moves, pieces_in_sight) = position::moves_for_piece_at_square(&board, square);

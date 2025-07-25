@@ -43,6 +43,11 @@ pub fn all_moves(board: &Board) -> Vec<Coup> {
     };
     moves
 }
+
+pub fn threatened_squares(board: &Board) -> SquareVec {
+    all_moves(board).iter().map(|coup| coup.end).collect()
+    
+}
 /* 
 pub fn castle_possibilities(board:&Board) -> HashMap<str, bool> {
     todo!()
