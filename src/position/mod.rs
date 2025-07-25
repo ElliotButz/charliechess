@@ -27,7 +27,6 @@ pub fn moves_for_piece_at_square(board: &Board, square: Square) -> (SquareVec, V
 
 pub fn all_moves(board: &Board) -> Vec<Coup> {
     // Returns all possible moves (aka coups) for both player.
-    /* collect here castel  determinants*/
     let mut moves: Vec<Coup> = Vec::new(); 
     for (&square, &_piece) in board.map.iter() { 
         let (targetable_squares, _pieces_in_sight ) = moves_for_piece_at_square(board, square);
@@ -45,6 +44,7 @@ pub fn all_moves(board: &Board) -> Vec<Coup> {
 }
 
 pub fn threatened_squares(board: &Board) -> SquareVec {
+    // Return all threatened squares, tipically to determine castle rights. 
     all_moves(board).iter().map(|coup| coup.end).collect()
 }
 /* 
