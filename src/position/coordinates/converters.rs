@@ -78,7 +78,10 @@ impl From <(Column, Row)> for Coords {
     }
 }
 
-pub trait SquareVecEquivalent {
+pub fn to_square_vec<T> (input_vec: &Vec<T>) -> SquareVec where T: Into<Square>, T: Copy {
+    input_vec.iter().map(|&x| x.into()).collect()
+}
+/* pub trait SquareVecEquivalent {
     fn to_square_vec(&self) -> SquareVec ;
 }
 
@@ -89,4 +92,4 @@ impl SquareVecEquivalent for CoordsVec {
         .map(|&coords|Square::from(coords))
         .collect()
     }
-}
+} */
