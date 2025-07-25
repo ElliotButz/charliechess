@@ -16,7 +16,7 @@ impl fmt::Display for Board {
             for col in Column::iter(){
 
                 let case_color:Color = square!((col, row)).get_color();
-                let piece_char = match &self.piece_at(square!((col, row))) {
+                let piece_char = match &self.opt_piece_at(square!((col, row))) {
                     Some(piece_at_pos) => piece_at_pos.as_char(),
                     None => ' '
                 };

@@ -3,7 +3,6 @@ extern crate num_derive;
 pub mod position;
 use crate::position::coordinates::displayers::vec2str;
 use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
-
 use crate::position::board::types_and_structs::Board;
 fn main() {
     let mut board = Board::at_start_state();
@@ -21,6 +20,9 @@ fn main() {
 
 
     println!("{board}");
+
+    let possible_moves = position::all_moves(&board);
+    println!("{}", vec2str(&possible_moves));
 
     for (&square, piece) in board.map.iter() {
         let (moves, pieces_in_sight) = position::moves_for_piece_at_square(&board, square);

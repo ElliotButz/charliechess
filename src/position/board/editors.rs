@@ -1,4 +1,3 @@
-
 use crate::position::coup::Coup;
 use crate::position::coordinates::types_and_structs::Square;
 use crate::position::pieces::Piece;
@@ -36,7 +35,7 @@ impl Board { // Editors
             end  : target_square,
             piece: displaced,
             taken: taken,
-            checks: self.piece_checks_king(target_square)
+            // checks: self.piece_checks_king(target_square)
         };
     }
 

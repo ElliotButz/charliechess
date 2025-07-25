@@ -6,8 +6,12 @@ use crate::position::board::types_and_structs::Board;
 
 impl Board { // Requesters
     
-    pub fn piece_at(&self, square: Square) -> Option<Piece> {
+    pub fn opt_piece_at(&self, square: Square) -> Option<Piece> {
         self.map.get(&square).copied()
+    }
+
+    pub fn piece_at(&self, square: Square) -> Piece {
+        self.map.get(&square).copied().expect("Expected piece at {square}, found none.")
     }
 
     pub fn color_of_piece_at(&self, square: Square) -> Option<Color> {
@@ -25,7 +29,7 @@ impl Board { // Requesters
 
         for square in squares.iter() {
             let mut can_go = true;
-            match self.piece_at(*square) {
+            match self.opt_piece_at(*square) {
                 None => (),
                 Some(piece) => {
                     if piece.color != target_color { can_go = false }
@@ -39,7 +43,7 @@ impl Board { // Requesters
     }
 
     pub fn square_is_free(&self, square: Square) -> bool {
-        match self.piece_at(square) {
+        match self.opt_piece_at(square) {
             None => true,
             _ => false
         }
@@ -53,7 +57,7 @@ impl Board { // Requesters
     }
 
     pub fn piece_checks_king(&self, piece_coords: Square) -> bool {
-        let _piece = self.piece_at(piece_coords).unwrap();
+        let _piece = self.opt_piece_at(piece_coords).unwrap();
         // TODO
         return false
     }
@@ -70,7 +74,7 @@ impl Board { // Requesters
             if target.not_in_board() {break}
             else {
                 in_path.push(target);
-                match self.piece_at(target.into()) {
+                match self.opt_piece_at(target.into()) {
                     Some(piece) => {found_piece = Some(piece); break },
                     None => ()
                 }
@@ -92,7 +96,7 @@ impl Board { // Requesters
             if target.not_in_board() {break}
             else {
                 in_path.push(target);
-                match self.piece_at(target.into()) {
+                match self.opt_piece_at(target.into()) {
                     Some(piece) => {found_pieces.push(piece)},
                     None => ()
                 }

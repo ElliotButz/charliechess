@@ -10,7 +10,7 @@ pub struct Coup {
     pub end:    Square,
     pub piece:  Piece,
     pub taken:  Option<Piece>,
-    pub checks: bool
+    // pub checks: bool
 }
 
 impl Coup {
@@ -26,7 +26,7 @@ impl Coup {
             end:    square!((Column::B, Row::R1)),
             piece:  Piece {color: Color::White, kind: PieceKind::Knight},
             taken:  None,
-            checks: false
+            // checks: false
         }
     }
 }

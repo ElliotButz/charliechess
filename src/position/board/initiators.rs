@@ -12,6 +12,7 @@ impl Board { // Initiators and init helpers
     pub fn new() -> Board { // Initiator
         Board {
             map: BoardMap::with_capacity(64),
+            player_to_play: White,
             last_move: Coup::coup_zero(),
             black_king_can_h_rook: false,
             black_king_can_a_rook: false,

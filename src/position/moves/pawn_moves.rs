@@ -23,7 +23,7 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
     let next_square: Square = start + (0, direction); // square in front of the pawn.
     let next_square_is_free: bool = board.square_is_free(next_square);
     if next_square_is_free { in_reach.push(next_square) } else {
-        found_pieces.push(unwrap!(board.piece_at(next_square), "Expected a piece at {}, found None.", next_square))} ;
+        found_pieces.push(unwrap!(board.opt_piece_at(next_square), "Expected a piece at {}, found None.", next_square))} ;
 
     // Normal take
     for colshift in [-1i8,1i8] {
@@ -34,7 +34,7 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
                 if target_piece_color != color {
                     in_reach.push(potential_target_square);
                     found_pieces.push(
-                        unwrap!(board.piece_at(potential_target_square), "Expected a piece at {}, found None.", potential_target_square)
+                        unwrap!(board.opt_piece_at(potential_target_square), "Expected a piece at {}, found None.", potential_target_square)
                     );
                 };
             },
@@ -51,7 +51,7 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
                 if board.square_is_free(double_step_target) { in_reach.push(double_step_target) }
                 else { found_pieces.push(
                     unwrap!(
-                        board.piece_at(double_step_target),
+                        board.opt_piece_at(double_step_target),
                         "Expected a piece at {}, found None.", double_step_target))
                     }
             }
@@ -66,7 +66,7 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
             if  last_move.is_pawn_double_step() && col_idx_diff==1 { // If the last moove is a double step from a pawn on an adjacent column, En Passant is possible.
                 let en_passant_target: Square = (last_move_colidx as i8, start_rowidx).into() ;
                 in_reach.push(en_passant_target);
-                found_pieces.push(unwrap!(board.piece_at(en_passant_target), "Expected a piece at {}, found None.", en_passant_target));
+                found_pieces.push(unwrap!(board.opt_piece_at(en_passant_target), "Expected a piece at {}, found None.", en_passant_target));
             }
         },
         _ => {}
