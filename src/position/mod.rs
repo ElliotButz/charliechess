@@ -12,7 +12,7 @@ pub mod history;
 pub mod coup;
 pub mod moves;
 
-pub fn moves_for_piece_at_square(board: &Board, square: Square) -> (SquareVec, Vec<Piece>) {
+pub fn basic_moves_for_piece_at_square(board: &Board, square: Square) -> (SquareVec, Vec<Piece>) {
     // Returns the squares a piece can target and the pieces in sight.
     let piece = board.opt_piece_at(square).expect("Square is empty, can not enumerate moves for piece at square.");
     match piece.kind{
@@ -29,7 +29,7 @@ pub fn all_moves(board: &Board) -> Vec<Coup> {
     // Returns all possible moves (aka coups) for both player.
     let mut moves: Vec<Coup> = Vec::new(); 
     for (&square, &_piece) in board.map.iter() { 
-        let (targetable_squares, _pieces_in_sight ) = moves_for_piece_at_square(board, square);
+        let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(board, square);
         for &target_square in targetable_squares.iter() { 
             moves.push( 
                 Coup {

@@ -27,7 +27,7 @@ fn main() {
     println!("Threatened sqaures: {}",vec2str(&position::threatened_squares(&board)));
 
     for (&square, piece) in board.map.iter() {
-        let (moves, pieces_in_sight) = position::moves_for_piece_at_square(&board, square);
+        let (moves, pieces_in_sight) = position::basic_moves_for_piece_at_square(&board, square);
         println!("{} {} {} {} {}", square, piece.color, piece.kind, vec2str(&moves), vec2str(&pieces_in_sight))
     }
 
