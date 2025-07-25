@@ -26,7 +26,7 @@ fn main() {
     let possible_moves = all_moves(&board);
     println!("Possible moves: {}", vec2str(&possible_moves));
 
-    println!("Threatened sqaures: {}",vec2str(&threatened_squares(&board)));
+    println!("Threatened squares: {}",vec2str(&threatened_squares(&board)));
 
     for (&square, piece) in board.map.iter() {
         let (moves, pieces_in_sight) = basic_moves_for_piece_at_square(&board, square);

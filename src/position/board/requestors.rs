@@ -1,5 +1,5 @@
 use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
-use crate::position::coordinates::converters::SquareVecEquivalent;
+use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
 use crate::position::pieces::Piece;
 use crate::position::board::types_and_structs::Board;
@@ -81,7 +81,7 @@ impl Board { // Requesters
              }
             n_steps += 1;
         }
-        return (in_path.to_square_vec(), found_piece) 
+        return (to_square_vec(&in_path), found_piece) 
     }
 
     pub fn step_through_piece(&self, start: Square, step: Coords) -> (SquareVec, Vec<Piece>) {
@@ -103,7 +103,7 @@ impl Board { // Requesters
              }
             n_steps += 1;
         }
-        return (in_path.to_square_vec(), found_pieces) 
+        return (to_square_vec(&in_path), found_pieces) 
     }
 
 
