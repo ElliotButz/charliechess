@@ -1,5 +1,5 @@
 use crate::{col, row};
-use crate::position::coordinates::types_and_structs::{Column, Row, Square, Coords, CoordsVec, SquareVec};
+use crate::position::coordinates::types_and_structs::{Column, Row, Square, Coords, SquareVec};
 use crate::position::coordinates::initiators::from_checked_i8;
 
 
@@ -81,15 +81,3 @@ impl From <(Column, Row)> for Coords {
 pub fn to_square_vec<T> (input_vec: &Vec<T>) -> SquareVec where T: Into<Square>, T: Copy {
     input_vec.iter().map(|&x| x.into()).collect()
 }
-/* pub trait SquareVecEquivalent {
-    fn to_square_vec(&self) -> SquareVec ;
-}
-
-impl SquareVecEquivalent for CoordsVec {
-    fn to_square_vec(&self) -> SquareVec {
-        self.iter()
-        .filter(|&idx|idx.in_board())
-        .map(|&coords|Square::from(coords))
-        .collect()
-    }
-} */
