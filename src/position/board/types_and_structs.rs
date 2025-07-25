@@ -13,17 +13,20 @@ pub struct Board {
     pub map: BoardMap,
     pub player_to_play: Color,
     pub last_move: Coup,
+
     pub black_king_has_moved: bool,
     pub white_king_has_moved: bool,
+    
     pub h_black_tower_has_moved: bool,
     pub a_black_tower_has_moved: bool,
     pub h_white_tower_has_moved: bool,
     pub a_white_tower_has_moved: bool,    
 
-    pub black_king_can_h_rook: bool,
-    pub black_king_can_a_rook: bool,
-    pub white_king_can_h_rook: bool,
-    pub white_king_can_a_rook: bool,
+    pub black_can_h_castle: bool,
+    pub black_can_a_castle: bool,
+    pub white_can_h_castle: bool,
+    pub white_can_a_castle: bool,
+
     pub squares_with_pined_pieces : SquareVec,
     pub squares_with_pining_pieces: SquareVec   
 }

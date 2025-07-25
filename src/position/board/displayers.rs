@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, format};
 use colored::{ColoredString, Colorize};
 use strum::IntoEnumIterator;
 
@@ -31,6 +31,10 @@ impl fmt::Display for Board {
             }
             board_str.push_str(".\n");
         }
+        board_str.push_str(&format!("\n white can a castle: {}", self.white_can_a_castle));
+        board_str.push_str(&format!("\n white can h castle: {}", self.white_can_h_castle));
+        board_str.push_str(&format!("\n black can a castle: {}", self.black_can_a_castle));
+        board_str.push_str(&format!("\n black can h castle: {}", self.black_can_h_castle));
         write!(f, "{}", board_str)
     }
 }

@@ -13,7 +13,7 @@ macro_rules! piece {
     };
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Piece {
     pub color: Color,
     pub kind: PieceKind,

@@ -10,8 +10,15 @@ pub mod queen_moves;
 pub mod king_moves;
 
 pub fn basic_moves_for_piece_at_square(board: &Board, square: Square) -> (SquareVec, Vec<Piece>) {
-    // Returns the squares a piece can target and the pieces in sight.
-    let piece = board.opt_piece_at(square).expect("Square is empty, can not enumerate moves for piece at square.");
+    // Returns the squares a piece can target and the pieces in sight. Castle is not treated.
+    // Expect a piece at input square.
+    let piece = board.piece_at(square);
+    basic_moves_for_piece_from_square(board, square, piece)
+}
+
+pub fn basic_moves_for_piece_from_square(board: &Board, square: Square, piece: Piece) -> (SquareVec, Vec<Piece>) {
+    // Return a Vec of the square that a piece could reach from a given square, and the pieces it would have in sight.
+    // Do not need the piece to really be at the square. Castle is not treated.
     match piece.kind{
         Pawn   =>   pawn_moves::reachable_squares(board, square, piece.color),
         Tower  =>  tower_moves::reachable_squares(board, square, piece.color),

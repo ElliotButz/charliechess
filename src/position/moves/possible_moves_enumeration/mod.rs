@@ -1,39 +1,171 @@
-use std::collections::HashMap;
+use crate::position::{
+        board::types_and_structs::Board,
+        color::Color::{self, *},
+        coordinates::{
+            converters::{row_as_square_vec, to_square_vec}, displayers::vec2str, types_and_structs::{Coords, Square}
+        },
+        coup::Coup,
+        moves::basic_piece_moves::*,
+        pieces::{Piece, PieceKind::*}
+    };
 
-use crate::{position::{
-    board::types_and_structs::Board, color::Color::*, coordinates::{converters::to_square_vec, types_and_structs::{Square, SquareVec}}, coup::Coup, moves::basic_piece_moves::*, pieces::{Piece, PieceKind::Tower}
+pub fn all_moves(board: &Board) -> (Vec<Coup>,Vec<Coup>) {
+    // Returns all possible moves (aka coups) for white and black player.
+    let mut white_moves: Vec<Coup> = Vec::new();
+    let mut black_moves: Vec<Coup> = Vec::new(); 
 
-}, square};
-pub fn all_moves(board: &Board) -> Vec<Coup> {
-    // Returns all possible moves (aka coups) for both player.
-    let mut moves: Vec<Coup> = Vec::new(); 
     for (&square, &_piece) in board.map.iter() { 
         let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(board, square);
-        for &target_square in targetable_squares.iter() { 
-            moves.push( 
-                Coup {
-                    start: square,
-                    end: target_square,
-                    piece: board.piece_at(square),
-                    taken: board.opt_piece_at(target_square)
-                }
-            )
+        for &target_square in targetable_squares.iter() {
+            let mover_piece = board.piece_at(square);
+            let coup = Coup {
+                start: square,
+                end: target_square,
+                piece: mover_piece,
+                taken: board.opt_piece_at(target_square)
+            };
+            match &mover_piece.color {
+                White => white_moves.push(coup),
+                Black => black_moves.push(coup),
+            };
         }
     };
-    moves
+    (white_moves, black_moves)
 }
 
-pub fn threatened_squares(board: &Board) -> SquareVec {
-    // Return all threatened squares, tipically to determine castle rights. 
-    all_moves(board).iter().map(|coup| coup.end).collect()
+pub fn square_is_in_sight_of_opponent(board: &Board, square: Square, sighter_color: Color) -> bool {
+    // Check if square is targetable by opponent piece. Checks for Pawn in a second time.
+
+    // Check for all pieces, expect Pawn
+    [Queen, Tower, Bishop, Knight, King].iter().any(|&kind|
+    {
+        let piece = Piece { kind: kind, color: sighter_color}; 
+        let (_sighters_possible_squares, sighters) = basic_moves_for_piece_from_square(board, square, piece);
+        sighters.contains(&piece)
+    } )  
+    ||
+    { // Check for pawn
+        let c_square: Coords = square.into();
+        let direction_in_which_is_sighter = sighter_color.the_other().as_direction();
+        to_square_vec(&vec![
+            c_square + ( 1, direction_in_which_is_sighter),
+            c_square + (-1, direction_in_which_is_sighter)
+            ]).iter().any(|&potential_pawn_sighter_square|
+            {
+                board.opt_piece_at(potential_pawn_sighter_square).is_some()
+            } )
+    }
+
 }
 
-pub fn castle_rights(board: &Board) -> HashMap<Square, bool> {
-    let castlers_towers_squares:SquareVec = to_square_vec(&vec![
-        (1,1), (1,8), (8,1), (8,8)
-    ]);
-    let mut rights: HashMap<Square, bool> = HashMap::with_capacity(4);
-    let threatened: SquareVec = threatened_squares(board);
 
-    rights
+pub fn update_castle_rights(board: &mut Board) {
+    fn can_castle(
+        board: &Board,
+        king_color: Color,
+        tower_moved: bool,
+        king_moved: bool,
+        left_bound: usize,
+        right_bound: usize,
+    ) -> bool {
+        let row_idx: i8 = match king_color {
+            Color::Black => 8,
+            Color::White => 1,
+        };
+        let row_vec = row_as_square_vec(row_idx);
+
+        println!("Debugging can_castle for {:?}:", king_color);
+        println!("Row: {}", vec2str(&row_vec));
+        println!("Tower moved: {}", tower_moved);
+        println!("King moved: {}", king_moved);
+
+        let squares_in_range = &row_vec[left_bound..right_bound];
+        println!("Squares in range: {:?}", squares_in_range);
+
+        let opponent_color = king_color.the_other();
+        let is_any_square_under_threat = squares_in_range.iter().any(|&square| {
+            square_is_in_sight_of_opponent(board, square, opponent_color)
+        });
+        println!("Any square under threat: {}", is_any_square_under_threat);
+
+        let is_any_square_occupied = squares_in_range.iter().any(|&square| {
+            board.opt_piece_at(square).is_some()
+        });
+        println!("Any square occupied: {}", is_any_square_occupied);
+
+        let can_castle = !(
+            tower_moved ||
+            king_moved ||
+            is_any_square_under_threat ||
+            is_any_square_occupied
+        );
+
+        println!("Can castle: {}", can_castle);
+        println!("----------------------------------------");
+
+        can_castle
+    }
+
+    println!("Updating castle rights...");
+    board.white_can_a_castle = can_castle(
+        board,
+        Color::White,
+        board.a_white_tower_has_moved,
+        board.white_king_has_moved,
+        1,
+        4
+    );
+    board.white_can_h_castle = can_castle(
+        board,
+        Color::White,
+        board.h_white_tower_has_moved,
+        board.white_king_has_moved,
+        5,
+        7
+    );
+    board.black_can_a_castle = can_castle(
+        board,
+        Color::Black,
+        board.a_black_tower_has_moved,
+        board.black_king_has_moved,
+        1,
+        4
+    );
+    board.black_can_h_castle = can_castle(
+        board,
+        Color::Black,
+        board.h_black_tower_has_moved,
+        board.black_king_has_moved,
+        5,
+        7
+    );
+
+    println!("Castle rights updated:");
+    println!("White can a castle: {}", board.white_can_a_castle);
+    println!("White can h castle: {}", board.white_can_h_castle);
+    println!("Black can a castle: {}", board.black_can_a_castle);
+    println!("Black can h castle: {}", board.black_can_h_castle);
 }
+
+
+/* pub fn update_castle_rights(board: &mut Board) {
+
+    fn can_castle(board: &Board, king_color: Color, tower_moved: bool, king_moved: bool, left_bound: usize, right_bound:usize) -> bool {
+        let rowidx: i8 = match king_color { Black =>  8, White => 1};
+        let row_vec = row_as_square_vec(rowidx);
+        !(
+            tower_moved ||
+            king_moved  ||
+            row_vec[left_bound..right_bound].iter().any(|&square| {
+                square_is_in_sight_of_opponent(board, square, king_color.the_other()) ||
+                board.opt_piece_at(square).is_some()
+            })
+        )
+    }
+
+    board.white_can_a_castle = can_castle(board, White, board.a_white_tower_has_moved, board.white_king_has_moved, 1, 4);
+    board.white_can_h_castle = can_castle(board, White, board.h_white_tower_has_moved, board.white_king_has_moved, 5, 7);
+    board.black_can_a_castle = can_castle(board, Black, board.a_black_tower_has_moved, board.black_king_has_moved, 1, 4);
+    board.black_can_h_castle = can_castle(board, Black, board.h_black_tower_has_moved, board.black_king_has_moved, 5, 7);
+}
+ */
