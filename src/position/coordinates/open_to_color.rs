@@ -1,6 +1,6 @@
 use crate::{
     Board,
-    position::{color::Color, SquareVec}};
+    position::{color::Color, coordinates::types_and_structs::SquareVec}};
 pub trait OpenToColor {
     fn open_to_color(&mut self, board: &Board, color: Color);
 }

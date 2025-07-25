@@ -4,6 +4,8 @@ pub mod position;
 use crate::position::coordinates::displayers::vec2str;
 use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
 use crate::position::board::types_and_structs::Board;
+use crate::position::moves::basic_piece_moves::*;
+use crate::position::moves::possible_moves_enumeration::{all_moves, threatened_squares};
 fn main() {
     let mut board = Board::at_start_state();
     board.move_piece(square!((E,R2)), square!((E,R4)));
@@ -21,13 +23,13 @@ fn main() {
 
     println!("{board}");
 
-    let possible_moves = position::all_moves(&board);
+    let possible_moves = all_moves(&board);
     println!("Possible moves: {}", vec2str(&possible_moves));
 
-    println!("Threatened sqaures: {}",vec2str(&position::threatened_squares(&board)));
+    println!("Threatened sqaures: {}",vec2str(&threatened_squares(&board)));
 
     for (&square, piece) in board.map.iter() {
-        let (moves, pieces_in_sight) = position::basic_moves_for_piece_at_square(&board, square);
+        let (moves, pieces_in_sight) = basic_moves_for_piece_at_square(&board, square);
         println!("{} {} {} {} {}", square, piece.color, piece.kind, vec2str(&moves), vec2str(&pieces_in_sight))
     }
 
