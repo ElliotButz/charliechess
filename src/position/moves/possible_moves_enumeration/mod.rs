@@ -33,26 +33,30 @@ pub fn all_moves(board: &Board) -> (Vec<Coup>,Vec<Coup>) {
     (white_moves, black_moves)
 }
 
-pub fn square_is_in_sight_of_opponent(board: &Board, square: Square, sighter_color: Color) -> bool {
+pub fn square_is_in_sight_of_opponent(board: &Board, square: Square, opponent_color: Color) -> bool {
     // Check if square is targetable by opponent piece. Checks for Pawn in a second time.
 
     // Check for all pieces, expect Pawn
     [Queen, Tower, Bishop, Knight, King].iter().any(|&kind|
     {
-        let piece = Piece { kind: kind, color: sighter_color}; 
+        let piece = Piece { kind: kind, color: opponent_color}; 
         let (_sighters_possible_squares, sighters) = basic_moves_for_piece_from_square(board, square, piece);
         sighters.contains(&piece)
     } )  
     ||
     { // Check for pawn
         let c_square: Coords = square.into();
-        let direction_in_which_is_sighter = sighter_color.the_other().as_direction();
+        let direction_in_which_is_sighter = opponent_color.the_other().as_direction();
         to_square_vec(&vec![
             c_square + ( 1, direction_in_which_is_sighter),
             c_square + (-1, direction_in_which_is_sighter)
             ]).iter().any(|&potential_pawn_sighter_square|
             {
-                board.opt_piece_at(potential_pawn_sighter_square).is_some()
+                match board.opt_piece_at(potential_pawn_sighter_square) {
+                    Some(piece) => {
+                        piece == Piece {kind: Pawn, color: opponent_color}},
+                    None => false
+                }
             } )
     }
 
@@ -73,25 +77,16 @@ pub fn update_castle_rights(board: &mut Board) {
             Color::White => 1,
         };
         let row_vec = row_as_square_vec(row_idx);
-
-        println!("Debugging can_castle for {:?}:", king_color);
-        println!("Row: {}", vec2str(&row_vec));
-        println!("Tower moved: {}", tower_moved);
-        println!("King moved: {}", king_moved);
-
         let squares_in_range = &row_vec[left_bound..right_bound];
-        println!("Squares in range: {:?}", squares_in_range);
 
         let opponent_color = king_color.the_other();
         let is_any_square_under_threat = squares_in_range.iter().any(|&square| {
             square_is_in_sight_of_opponent(board, square, opponent_color)
         });
-        println!("Any square under threat: {}", is_any_square_under_threat);
 
         let is_any_square_occupied = squares_in_range.iter().any(|&square| {
             board.opt_piece_at(square).is_some()
         });
-        println!("Any square occupied: {}", is_any_square_occupied);
 
         let can_castle = !(
             tower_moved ||
@@ -99,14 +94,9 @@ pub fn update_castle_rights(board: &mut Board) {
             is_any_square_under_threat ||
             is_any_square_occupied
         );
-
-        println!("Can castle: {}", can_castle);
-        println!("----------------------------------------");
-
         can_castle
     }
 
-    println!("Updating castle rights...");
     board.white_can_a_castle = can_castle(
         board,
         Color::White,
@@ -140,11 +130,6 @@ pub fn update_castle_rights(board: &mut Board) {
         7
     );
 
-    println!("Castle rights updated:");
-    println!("White can a castle: {}", board.white_can_a_castle);
-    println!("White can h castle: {}", board.white_can_h_castle);
-    println!("Black can a castle: {}", board.black_can_a_castle);
-    println!("Black can h castle: {}", board.black_can_h_castle);
 }
 
 

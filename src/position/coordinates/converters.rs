@@ -93,5 +93,5 @@ pub fn col_as_square_vec (colidx: i8) -> SquareVec {
 }
 
 pub fn row_as_square_vec (rowidx: i8) -> SquareVec {
-    (1..=8).map(|colidx:i8|(rowidx, colidx).into()).collect()
+    (1..=8).map(|colidx:i8|(colidx, rowidx).into()).collect()
 }

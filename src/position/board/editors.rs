@@ -1,7 +1,11 @@
+use crate::position::color::Color;
+use crate::position::coordinates::converters::row_as_square_vec;
 use crate::position::coup::Coup;
 use crate::position::coordinates::types_and_structs::Square;
 use crate::position::pieces::Piece;
 use crate::position::board::types_and_structs::Board;
+
+use crate::position::moves::possible_moves_enumeration::{square_is_in_sight_of_opponent, update_castle_rights};
 
 
 impl Board { // Editors
@@ -20,10 +24,75 @@ impl Board { // Editors
         self.map.insert(coords, piece);
     }
 
+    fn can_castle(
+            &self,
+            king_color: Color,
+            tower_moved: bool,
+            king_moved: bool,
+            left_bound: usize,
+            right_bound: usize,
+        ) -> bool {
+            let row_idx: i8 = match king_color {
+                Color::Black => 8,
+                Color::White => 1,
+            };
+            let row_vec = row_as_square_vec(row_idx);
+            let squares_in_range = &row_vec[left_bound..right_bound];
+
+            let opponent_color = king_color.the_other();
+            let is_any_square_under_threat = squares_in_range.iter().any(|&square| {
+                square_is_in_sight_of_opponent(self, square, opponent_color)
+            });
+
+            let is_any_square_occupied = squares_in_range.iter().any(|&square| {
+                self.opt_piece_at(square).is_some()
+            });
+
+            let can_castle = !(
+                tower_moved ||
+                king_moved ||
+                is_any_square_under_threat ||
+                is_any_square_occupied
+            );
+            can_castle
+        }
+
+    pub fn update_castle_rights(& mut self) {
+       
+        self.white_can_a_castle = self.can_castle(
+            Color::White,
+            self.a_white_tower_has_moved,
+            self.white_king_has_moved,
+            1,
+            4
+        );
+        self.white_can_h_castle = self.can_castle(
+            Color::White,
+            self.h_white_tower_has_moved,
+            self.white_king_has_moved,
+            5,
+            7
+        );
+        self.black_can_a_castle = self.can_castle(
+            Color::Black,
+            self.a_black_tower_has_moved,
+            self.black_king_has_moved,
+            1,
+            4
+        );
+        self.black_can_h_castle = self.can_castle(
+            Color::Black,
+            self.h_black_tower_has_moved,
+            self.black_king_has_moved,
+            5,
+            7
+        );
+    }
+
     pub fn move_piece(&mut self, start_square: Square, target_square: Square) {
     /*
-    1: Extract the Piece at start_square (it is displaced: Piece),
-    2: Extract the possible Piece at target_square (it is taken : Option<Piece>),
+    1: Extract the Piece at start_square (displaced: Piece),
+    2: Extract the possible Piece at target_square (taken : Option<Piece>),
     3: Place the Piece displaced from start_square at target_square,
     4: Update board.
     */
@@ -37,6 +106,7 @@ impl Board { // Editors
             taken: taken,
             // checks: self.piece_checks_king(target_square)
         };
+        update_castle_rights(self)
     }
 
 }

@@ -20,19 +20,17 @@ fn main() {
     board.move_piece(square!((A,R5)), square!((A,R4)));
     board.move_piece(square!((B,R2)), square!((B,R4)));
     board.move_piece(square!((G,R8)), square!((F,R6)));
-    board.move_piece(square!((F,R1)), square!((B,R5)));
+
     update_castle_rights(&mut board);
-
-
     println!("{board}");
 
-    let (white_moves, black_moves) = all_moves(&board);
+/*     let (white_moves, black_moves) = all_moves(&board);
     println!("White moves: {}", vec2str(&white_moves));
     println!("Black moves: {}", vec2str(&black_moves));
 
     for (&square, piece) in board.map.iter() {
         let (moves, pieces_in_sight) = basic_moves_for_piece_at_square(&board, square);
         println!("{} {} {} {} {}", square, piece.color, piece.kind, vec2str(&moves), vec2str(&pieces_in_sight))
-    }
+    } */
 
 }
