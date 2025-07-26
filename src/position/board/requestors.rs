@@ -1,3 +1,5 @@
+use ordered_hash_map::OrderedHashMap;
+
 use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
 use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
@@ -84,26 +86,25 @@ impl Board { // Requesters
         return (to_square_vec(&in_path), found_piece) 
     }
 
-    pub fn step_through_piece(&self, start: Square, step: Coords) -> (SquareVec, Vec<Piece>) {
+    pub fn step_through_piece(&self, start: Square, step: Coords) -> OrderedHashMap<Square, Piece> {
         // Makes a vector [start + n * step | n in 1..=N, N being the last n for which start + n * is in board]
         // Returns a vector of found pieces too.
         let cstart: Coords = start.into();
-        let mut found_pieces:Vec<Piece> = Vec::with_capacity(7);
-        let mut in_path = CoordsVec::with_capacity(7);
+        let mut squares_and_pieces = OrderedHashMap::new();
         let mut n_steps: i8 = 1;  
         loop {
             let target: Coords = cstart + step * n_steps ;
             if target.not_in_board() {break}
             else {
-                in_path.push(target);
-                match self.opt_piece_at(target.into()) {
-                    Some(piece) => {found_pieces.push(piece)},
+                let target_square = target.into();
+                match self.opt_piece_at(target_square) {
+                    Some(piece) => { squares_and_pieces.insert(target_square, piece); },
                     None => ()
                 }
              }
             n_steps += 1;
         }
-        return (to_square_vec(&in_path), found_pieces) 
+        return squares_and_pieces
     }
 
 

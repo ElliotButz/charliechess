@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use crate::{piece, square};
 use crate::position::color::Color;
 use crate::position::coordinates::converters::row_as_square_vec;
 use crate::position::coup::{Coup, CoupKind::*};
-use crate::position::coordinates::types_and_structs::{Column, Square};
-use crate::position::pieces::{Piece, PieceKind};
+use crate::position::coordinates::types_and_structs::{Column, Square, SquareVec};
+use crate::position::pieces::{Piece, PieceKind, PieceKind::{Queen, King, Bishop, Tower}};
 use crate::position::board::types_and_structs::Board;
 
 use crate::position::moves::possible_moves_enumeration::{square_is_in_sight_of_opponent};
@@ -93,18 +95,45 @@ impl Board { // Editors
     fn update_king_safety(&mut self) {
 
         for color in [Color::White, Color::Black] {
-        let king_square = self.squares_with(piece!(color, PieceKind::King))[0];
-        let king_is_checked = square_is_in_sight_of_opponent(self, king_square, color.the_other());
-        match color {
-            Color::Black => self.black_king_is_checked = king_is_checked,
-            Color::White => self.white_king_is_checked = king_is_checked
-        }
-        
+            let king_square = self.squares_with(piece!(color, King))[0];
+            let king_is_checked = square_is_in_sight_of_opponent(self, king_square, color.the_other());
+            match color {
+                Color::Black => self.black_king_is_checked = king_is_checked,
+                Color::White => self.white_king_is_checked = king_is_checked
+            }
         }
     }
 
     fn update_pines(&mut self) {
-        
+
+        let kind_steps: HashMap<PieceKind, Vec<(i8,i8)>> = HashMap::from([
+            (Bishop, vec![(1,1), (1,-1), (-1,-1), (-1,1)]),
+            (Tower,  vec![(0,1), ( 1,0), ( 0,-1), (-1,0)])
+        ]);
+
+        for king_color in [Color::White, Color::Black] {
+            let king_square = self.squares_with(piece!(king_color, King))[0];
+            for (&kind, steps) in &kind_steps {
+                let opponent = king_color.the_other();
+                let dangers = vec![
+                    Piece { kind: kind,  color: opponent },
+                    Piece { kind: Queen, color: opponent }
+                ];
+                for &step in steps {
+                    let mut squares_and_pieces_on_way: ordered_hash_map::OrderedHashMap<Square, Piece> = self.step_through_piece(king_square, step.into());
+                    if let Some((pined_square,  pined_piece )) = squares_and_pieces_on_way.pop_front_entry() {
+                        if let Some((piner_square,  piner_piece )) = squares_and_pieces_on_way.pop_front_entry() {
+                            if pined_piece.color == king_color && dangers.contains(&piner_piece) {
+                                self.squares_with_pined_pieces .push(pined_square);
+                                self.squares_with_pining_pieces.push(piner_square);
+                            }
+                        }
+                    }
+                }
+
+            }
+            
+        }
     }
 
     pub fn update_info(&mut self) {
