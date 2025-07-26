@@ -35,6 +35,58 @@ impl Coup {
             // checks: false
         }
     }
+
+    pub fn white_h_castle() -> Self {
+        Self {
+            start: square!((Column::E, Row::R1)),
+            end: square!((Column::G, Row::R1)),
+            piece: Piece {
+                color: Color::White,
+                kind: PieceKind::King,
+            },
+            taken: None,
+            kind: CoupKind::Castle,
+        }
+    }
+
+    pub fn white_a_castle() -> Self {
+        Self {
+            start: square!((Column::E, Row::R1)),
+            end: square!((Column::C, Row::R1)),
+            piece: Piece {
+                color: Color::White,
+                kind: PieceKind::King,
+            },
+            taken: None,
+            kind: CoupKind::Castle,
+        }
+    }
+
+    pub fn black_h_castle() -> Self {
+        Self {
+            start: square!((Column::E, Row::R8)),
+            end: square!((Column::G, Row::R8)),
+            piece: Piece {
+                color: Color::Black,
+                kind: PieceKind::King,
+            },
+            taken: None,
+            kind: CoupKind::Castle,
+        }
+    }
+
+    pub fn black_a_castle() -> Self {
+        Self {
+            start: square!((Column::E, Row::R8)),
+            end: square!((Column::C, Row::R8)),
+            piece: Piece {
+                color: Color::Black,
+                kind: PieceKind::King,
+            },
+            taken: None,
+            kind: CoupKind::Castle,
+        }
+    }
 }
 
 impl fmt::Display for Coup {

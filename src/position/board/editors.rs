@@ -8,9 +8,6 @@ use crate::position::coordinates::types_and_structs::{Column, Square, SquareVec}
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Queen, King, Bishop, Tower}};
 use crate::position::board::types_and_structs::Board;
 
-use crate::position::moves::possible_moves_enumeration::{square_is_in_sight_of_opponent};
-
-
 impl Board { // Editors
 
     fn extract_piece_of_square(&mut self, square: Square) -> Piece {
@@ -44,7 +41,7 @@ impl Board { // Editors
 
             let opponent_color = king_color.the_other();
             let is_any_square_under_threat = squares_in_range.iter().any(|&square| {
-                square_is_in_sight_of_opponent(self, square, opponent_color)
+                self.square_is_in_sight_of_opponent(square, opponent_color)
             });
 
             let is_any_square_occupied = squares_in_range.iter().any(|&square| {
@@ -96,7 +93,7 @@ impl Board { // Editors
 
         for color in [Color::White, Color::Black] {
             let king_square = self.squares_with(piece!(color, King))[0];
-            let king_is_checked = square_is_in_sight_of_opponent(self, king_square, color.the_other());
+            let king_is_checked = self.square_is_in_sight_of_opponent(king_square, color.the_other());
             match color {
                 Color::Black => self.black_king_is_checked = king_is_checked,
                 Color::White => self.white_king_is_checked = king_is_checked
