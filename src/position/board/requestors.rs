@@ -3,8 +3,9 @@ use ordered_hash_map::OrderedHashMap;
 use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
 use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
-use crate::position::pieces::Piece;
+use crate::position::pieces::{Piece, PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
 use crate::position::board::types_and_structs::Board;
+use crate::position::moves::basic_piece_moves::basic_moves_for_piece_from_square;
 
 impl Board { // Requesters
     
@@ -139,7 +140,6 @@ impl Board { // Requesters
             }
             None => ()
         }
-        // println!("blip");
         return (in_path, found_piece)
     }
 
@@ -166,5 +166,35 @@ impl Board { // Requesters
         }
         squares
     }
+
+    pub fn square_is_in_sight_of_opponent(&self, square: Square, opponent_color: Color) -> bool {
+        // Check if square is targetable by opponent piece. Checks for Pawn in a second time.
+
+        // Check for all pieces, expect Pawn
+        [Queen, Tower, Bishop, Knight, King].iter().any(|&kind|
+        {
+            let piece = Piece { kind: kind, color: opponent_color}; 
+            let (_sighters_possible_squares, sighters) = basic_moves_for_piece_from_square(self, square, piece);
+            sighters.contains(&piece)
+        } )  
+        ||
+        { // Check for pawn
+            let c_square: Coords = square.into();
+            let direction_in_which_is_sighter = opponent_color.the_other().as_direction();
+            to_square_vec(&vec![
+                c_square + ( 1, direction_in_which_is_sighter),
+                c_square + (-1, direction_in_which_is_sighter)
+                ]).iter().any(|&potential_pawn_sighter_square|
+                {
+                    match self.opt_piece_at(potential_pawn_sighter_square) {
+                        Some(piece) => {
+                            piece == Piece {kind: Pawn, color: opponent_color}},
+                        None => false
+                    }
+                } )
+        }
+
+    }
+
 
 }
