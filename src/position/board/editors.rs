@@ -139,6 +139,7 @@ impl Board { // Editors
     pub fn update_info(&mut self) {
         self.update_king_safety();
         self.update_castle_rights();
+        self.update_pines();
     }
 
     fn move_piece(&mut self, start_square: Square, target_square: Square) -> Option<Piece> {
