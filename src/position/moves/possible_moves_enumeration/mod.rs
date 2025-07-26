@@ -4,7 +4,7 @@ use crate::position::{
         coordinates::{
             converters::{row_as_square_vec, to_square_vec}, displayers::vec2str, types_and_structs::{Coords, Square}
         },
-        coup::Coup,
+        coup::{Coup, CoupKind},
         moves::basic_piece_moves::*,
         pieces::{Piece, PieceKind::*}
     };
@@ -22,7 +22,8 @@ pub fn all_moves(board: &Board) -> (Vec<Coup>,Vec<Coup>) {
                 start: square,
                 end: target_square,
                 piece: mover_piece,
-                taken: board.opt_piece_at(target_square)
+                taken: board.opt_piece_at(target_square),
+                kind: CoupKind::Normal
             };
             match &mover_piece.color {
                 White => white_moves.push(coup),
@@ -133,24 +134,4 @@ pub fn update_castle_rights(board: &mut Board) {
 }
 
 
-/* pub fn update_castle_rights(board: &mut Board) {
 
-    fn can_castle(board: &Board, king_color: Color, tower_moved: bool, king_moved: bool, left_bound: usize, right_bound:usize) -> bool {
-        let rowidx: i8 = match king_color { Black =>  8, White => 1};
-        let row_vec = row_as_square_vec(rowidx);
-        !(
-            tower_moved ||
-            king_moved  ||
-            row_vec[left_bound..right_bound].iter().any(|&square| {
-                square_is_in_sight_of_opponent(board, square, king_color.the_other()) ||
-                board.opt_piece_at(square).is_some()
-            })
-        )
-    }
-
-    board.white_can_a_castle = can_castle(board, White, board.a_white_tower_has_moved, board.white_king_has_moved, 1, 4);
-    board.white_can_h_castle = can_castle(board, White, board.h_white_tower_has_moved, board.white_king_has_moved, 5, 7);
-    board.black_can_a_castle = can_castle(board, Black, board.a_black_tower_has_moved, board.black_king_has_moved, 1, 4);
-    board.black_can_h_castle = can_castle(board, Black, board.h_black_tower_has_moved, board.black_king_has_moved, 5, 7);
-}
- */

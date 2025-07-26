@@ -14,6 +14,8 @@ impl Board { // Initiators and init helpers
             map: BoardMap::with_capacity(64),
             player_to_play: White,
             last_move: Coup::coup_zero(),
+            black_king_is_checked: false,
+            white_king_is_checked: false,
             black_can_h_castle: false,
             black_can_a_castle: false,
             white_can_h_castle: false,

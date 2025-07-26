@@ -1,11 +1,12 @@
+use crate::{piece, square};
 use crate::position::color::Color;
 use crate::position::coordinates::converters::row_as_square_vec;
-use crate::position::coup::Coup;
-use crate::position::coordinates::types_and_structs::Square;
-use crate::position::pieces::Piece;
+use crate::position::coup::{Coup, CoupKind::*};
+use crate::position::coordinates::types_and_structs::{Column, Square};
+use crate::position::pieces::{Piece, PieceKind};
 use crate::position::board::types_and_structs::Board;
 
-use crate::position::moves::possible_moves_enumeration::{square_is_in_sight_of_opponent, update_castle_rights};
+use crate::position::moves::possible_moves_enumeration::{square_is_in_sight_of_opponent};
 
 
 impl Board { // Editors
@@ -57,7 +58,7 @@ impl Board { // Editors
             can_castle
         }
 
-    pub fn update_castle_rights(& mut self) {
+    fn update_castle_rights(& mut self) {
        
         self.white_can_a_castle = self.can_castle(
             Color::White,
@@ -89,24 +90,59 @@ impl Board { // Editors
         );
     }
 
-    pub fn move_piece(&mut self, start_square: Square, target_square: Square) {
+    fn update_king_safety(&mut self) {
+
+        for color in [Color::White, Color::Black] {
+        let king_square = self.squares_with(piece!(color, PieceKind::King))[0];
+        let king_is_checked = square_is_in_sight_of_opponent(self, king_square, color.the_other());
+        match color {
+            Color::Black => self.black_king_is_checked = king_is_checked,
+            Color::White => self.white_king_is_checked = king_is_checked
+        }
+        
+        }
+    }
+
+    fn update_pines(&mut self) {
+        
+    }
+
+    pub fn update_info(&mut self) {
+        self.update_king_safety();
+        self.update_castle_rights();
+    }
+
+    fn move_piece(&mut self, start_square: Square, target_square: Square) -> Option<Piece> {
     /*
     1: Extract the Piece at start_square (displaced: Piece),
     2: Extract the possible Piece at target_square (taken : Option<Piece>),
     3: Place the Piece displaced from start_square at target_square,
-    4: Update board.
     */
         let displaced: Piece = self.extract_piece_of_square(start_square);
         let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
         self.add_piece_at_coords(target_square, displaced);
-        self.last_move = Coup {
-            start: start_square,
-            end  : target_square,
-            piece: displaced,
-            taken: taken,
-            // checks: self.piece_checks_king(target_square)
-        };
-        update_castle_rights(self)
+        taken
+    }
+
+    pub fn execute(&mut self, coup: Coup) {
+        match coup.kind {
+            Normal => { self.move_piece(coup.start, coup.end); },
+            Castle => {
+                let row = coup.start.row;
+                if coup.end.col == Column::C { // Long castle
+                    self.move_piece(coup.start, square!((Column::C, row)));
+                    self.move_piece(square!((Column::A, row)), square!((Column::D, row)));
+                } else
+                if coup.end.col == Column::G { // Short castle
+                    self.move_piece(coup.start, square!((Column::G, row)));
+                    self.move_piece(square!((Column::H, row)), square!((Column::F, row)));
+                }
+            }
+        }
+        
+        self.last_move = coup;
+        self.update_info();
+
     }
 
 }

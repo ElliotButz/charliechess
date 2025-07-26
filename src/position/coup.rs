@@ -5,11 +5,16 @@ use crate::position::color::Color;
 use crate::square;
 
 #[derive(Clone, Copy)]
+pub enum CoupKind { Normal, Castle }
+
+
+#[derive(Clone, Copy)]
 pub struct Coup {
-    pub start:  Square,
-    pub end:    Square,
-    pub piece:  Piece,
-    pub taken:  Option<Piece>,
+    pub start: Square,
+    pub end  : Square,
+    pub piece: Piece,
+    pub taken: Option<Piece>,
+    pub kind : CoupKind
     // pub checks: bool
 }
 
@@ -22,10 +27,11 @@ impl Coup {
 
     pub fn coup_zero() -> Self {
         Self {
-            start:  square!((Column::C, Row::R3)),
-            end:    square!((Column::B, Row::R1)),
-            piece:  Piece {color: Color::White, kind: PieceKind::Knight},
-            taken:  None,
+            start: square!((Column::C, Row::R3)),
+            end:   square!((Column::B, Row::R1)),
+            piece: Piece {color: Color::White, kind: PieceKind::Knight},
+            taken: None,
+            kind : CoupKind::Normal
             // checks: false
         }
     }
@@ -37,11 +43,7 @@ impl fmt::Display for Coup {
     }
 }
 
-#[derive(Clone, Copy)]
-pub struct Turn {
-    pub white_coup: Coup,
-    pub black_coup: Option<Coup> // None if game ends after white's move.
-} 
+
 
 /* impl Turn {
     pub fn to_str(&self) -> String {

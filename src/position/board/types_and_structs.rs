@@ -14,6 +14,9 @@ pub struct Board {
     pub player_to_play: Color,
     pub last_move: Coup,
 
+    pub black_king_is_checked: bool,
+    pub white_king_is_checked: bool,
+
     pub black_king_has_moved: bool,
     pub white_king_has_moved: bool,
     

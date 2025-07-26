@@ -8,7 +8,7 @@ use crate::position::moves::basic_piece_moves::*;
 use crate::position::moves::possible_moves_enumeration::{all_moves, update_castle_rights};
 fn main() {
     let mut board = Board::at_start_state();
-    board.move_piece(square!((E,R2)), square!((E,R4)));
+/*     board.move_piece(square!((E,R2)), square!((E,R4)));
     board.move_piece(square!((E,R7)), square!((E,R5)));
     board.move_piece(square!((G,R1)), square!((F,R3)));
     board.move_piece(square!((B,R8)), square!((C,R6)));
@@ -19,7 +19,7 @@ fn main() {
     board.move_piece(square!((B,R1)), square!((C,R3)));
     board.move_piece(square!((A,R5)), square!((A,R4)));
     board.move_piece(square!((B,R2)), square!((B,R4)));
-    board.move_piece(square!((G,R8)), square!((F,R6)));
+    board.move_piece(square!((G,R8)), square!((F,R6))); */
 
     update_castle_rights(&mut board);
     println!("{board}");

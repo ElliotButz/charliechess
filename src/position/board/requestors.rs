@@ -158,4 +158,12 @@ impl Board { // Requesters
         (in_all_paths, found_pieces)
     }
 
+    pub fn squares_with(&self, piece: Piece) -> Vec<Square> {
+        let mut squares = Vec::new(); 
+        for (&square, &at_square) in self.map.iter() {
+            if at_square == piece { squares.push(square); }
+        }
+        squares
+    }
+
 }
