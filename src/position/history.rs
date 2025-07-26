@@ -44,16 +44,4 @@ impl History {
             true => Some(self.turns[n-1].clone()),
         }
     }
-
-    pub fn as_turn_serie(&self) -> Vec<Turn> {
-        let mut turn_serie: Vec<Turn> = Vec::new();
-        for n in (1..self.turns.len()).step_by(2) {
-            let white_coup: Coup = self.nth_turn(n).expect("All white coups in history are expected to be of type Coup, found non-Coup.");
-            let black_coup: Option<Coup> = self.nth_turn(n+1);
-            let turn = Turn{white_coup, black_coup}; // In a turn, White have played for sure but not Black.
-            turn_serie.push(turn)
-        }
-        turn_serie 
-    }
-
 }
