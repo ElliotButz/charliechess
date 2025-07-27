@@ -2,9 +2,8 @@ extern crate num_derive;
 
 pub mod position;
 use crate::position::coordinates::displayers::vec2str;
-use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
+//use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
 use crate::position::board::types_and_structs::Board;
-use crate::position::moves::basic_piece_moves::*;
 use crate::position::moves::possible_moves_enumeration::{all_moves};
 fn main() {
     let mut board = Board::at_start_state();

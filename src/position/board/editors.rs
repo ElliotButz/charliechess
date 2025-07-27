@@ -4,7 +4,7 @@ use crate::{piece, square};
 use crate::position::color::Color;
 use crate::position::coordinates::converters::row_as_square_vec;
 use crate::position::coup::{Coup, CoupKind::*};
-use crate::position::coordinates::types_and_structs::{Column, Square, SquareVec};
+use crate::position::coordinates::types_and_structs::{Column, Square};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Queen, King, Bishop, Tower}};
 use crate::position::board::types_and_structs::Board;
 
@@ -166,10 +166,8 @@ impl Board { // Editors
                 }
             }
         }
-        
         self.last_move = coup;
         self.update_info();
-
     }
 
 }

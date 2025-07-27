@@ -15,4 +15,7 @@ pub struct Position {
 
 impl Position {
 
+    fn check_draw(&self) {
+        todo!()
+    }
 }

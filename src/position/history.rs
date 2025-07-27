@@ -1,6 +1,5 @@
 use crate::position::{
     coup::{Coup},
-    color::Color::*
 };
 
 
