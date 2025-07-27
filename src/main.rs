@@ -4,7 +4,6 @@ pub mod position;
 use crate::position::coordinates::displayers::vec2str;
 //use crate::position::coordinates::types_and_structs::{Row::*, Column::*};
 use crate::position::board::types_and_structs::Board;
-use crate::position::moves::possible_moves_enumeration::{all_moves};
 fn main() {
     let mut board = Board::at_start_state();
 /*     board.move_piece(square!((E,R2)), square!((E,R4)));
@@ -22,7 +21,7 @@ fn main() {
 
     println!("{board}");
 
-    let (white_moves, black_moves) = all_moves(&mut board);
+    let (white_moves, black_moves) = board.all_moves();
     println!("White moves: {}", vec2str(&white_moves));
     println!("Black moves: {}", vec2str(&black_moves));
 }

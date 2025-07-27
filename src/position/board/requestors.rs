@@ -3,11 +3,49 @@ use ordered_hash_map::OrderedHashMap;
 use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
 use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
+use crate::position::coup::{Coup, CoupKind};
 use crate::position::pieces::{Piece, PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
 use crate::position::board::types_and_structs::Board;
-use crate::position::moves::basic_piece_moves::basic_moves_for_piece_from_square;
+use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square, basic_moves_for_piece_from_square};
 
 impl Board { // Requesters
+
+    pub fn all_moves(&mut self) -> (Vec<Coup>,Vec<Coup>) {
+        // Returns all possible moves (aka coups) for white and black player.
+
+        self.update_info();
+
+        let mut white_moves: Vec<Coup> = Vec::new();
+        let mut black_moves: Vec<Coup> = Vec::new(); 
+
+        for (&square, &_piece) in self.map.iter().filter(
+            |(square, _piece)| !self.squares_with_pined_pieces.contains(square) 
+        ) { 
+            let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(self, square);
+            for &target_square in targetable_squares.iter() {
+                let mover_piece = self.piece_at(square);
+                let coup = Coup {
+                    start: square,
+                    end: target_square,
+                    piece: mover_piece,
+                    taken: self.opt_piece_at(target_square),
+                    kind: CoupKind::Normal
+                };
+                match &mover_piece.color {
+                    Color::White => white_moves.push(coup),
+                    Color::Black => black_moves.push(coup),
+                };
+            }
+        };
+
+        if self.black_can_h_castle { black_moves.push(Coup::black_h_castle()) };
+        if self.black_can_a_castle { black_moves.push(Coup::black_a_castle()) };
+        if self.white_can_h_castle { white_moves.push(Coup::white_h_castle()) };
+        if self.white_can_a_castle { white_moves.push(Coup::white_a_castle()) };
+
+
+
+        (white_moves, black_moves)}
     
     pub fn opt_piece_at(&self, square: Square) -> Option<Piece> {
         self.map.get(&square).copied()
