@@ -243,5 +243,11 @@ impl Board { // Requesters
 
     }
 
+    pub fn is_legal(&mut self, coup: Coup) -> bool {
+        self.update_info();
+        let (white_legal_moves, black_legal_moves) = self.all_moves();
+        white_legal_moves.contains(&coup) | black_legal_moves.contains(&coup) 
+    }
+
 
 }

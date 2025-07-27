@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::fmt;
+
 use crate::{col, row};
 use crate::position::coordinates::types_and_structs::{Column, Row, Square, Coords, SquareVec, CoordsVec};
 use crate::position::coordinates::initiators::from_checked_i8;
@@ -27,6 +30,54 @@ impl From <Column> for i8 {
         c as i8
     }
 }
+
+// str > Column,  Row
+
+#[derive(Debug)]
+pub enum CharColRowError { UnrecognizedInput(char) }
+
+impl fmt::Display for CharColRowError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::UnrecognizedInput(c) => write!(f, "Failed to make column or row from input {c}. input should be in [1-8] or [aA-hH]")
+        }
+    }
+}
+impl Error for CharColRowError {}
+
+impl TryFrom <char> for Column {
+    type Error = CharColRowError;
+    fn try_from(col_char: char) -> Result<Self, Self::Error> {
+        match col_char.to_ascii_uppercase() {
+            'A' => Ok(Column::A),
+            'B' => Ok(Column::B),
+            'C' => Ok(Column::C),
+            'D' => Ok(Column::D),
+            'E' => Ok(Column::E),
+            'F' => Ok(Column::F),
+            'G' => Ok(Column::G),
+            'H' => Ok(Column::H),
+            other => Err(CharColRowError::UnrecognizedInput(other))
+        }
+    }
+}
+
+impl TryFrom <char> for Row {
+    type Error = CharColRowError;
+    fn try_from(col_char: char) -> Result<Self, Self::Error> {
+        match col_char.to_ascii_uppercase() {
+            '1' => Ok(Row::R1),
+            '2' => Ok(Row::R2),
+            '3' => Ok(Row::R3),
+            '4' => Ok(Row::R4),
+            '5' => Ok(Row::R5),
+            '6' => Ok(Row::R6),
+            '7' => Ok(Row::R7),
+            '8' => Ok(Row::R8),
+            other => Err(CharColRowError::UnrecognizedInput(other))
+        }
+    }
+} 
 
 // (i8, i8) <> Coords <> Square
 impl From <Square> for Coords {
@@ -94,4 +145,38 @@ pub fn col_as_square_vec (colidx: i8) -> SquareVec {
 
 pub fn row_as_square_vec (rowidx: i8) -> SquareVec {
     (1..=8).map(|colidx:i8|(colidx, rowidx).into()).collect()
+}
+
+#[derive(Debug)]
+pub enum StrSquareError { NoColumn, NoRow, CharColRowError(CharColRowError)}
+
+impl From<CharColRowError> for StrSquareError {
+    fn from(err: CharColRowError) -> Self {
+        StrSquareError::CharColRowError(err)
+    }
+}
+
+impl fmt::Display for StrSquareError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::NoColumn => write!(f, "Empty input"),
+            Self::NoRow => write!(f, "Input should be 2-sized."),
+            Self::CharColRowError(err) => write!(f, "Failed to read input Row or Column: {}",err),
+        }
+    }
+}
+
+impl TryFrom <&str> for Square {
+    type Error = StrSquareError;
+    fn try_from(str_square: &str) -> Result< Square, Self::Error> {
+        let mut chars_square = str_square.chars();
+        let input_col_char = chars_square.next().ok_or( StrSquareError::NoColumn)?;
+        let input_row_char = chars_square.next().ok_or( StrSquareError::NoRow)?;
+        let input_col = Column::try_from(input_col_char)?; 
+        let input_row = Row::try_from(input_row_char)?; 
+        Ok(Square {
+            col: input_col,
+            row: input_row
+        })
+    }
 }
