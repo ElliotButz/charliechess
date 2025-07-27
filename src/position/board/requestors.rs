@@ -209,7 +209,9 @@ impl Board { // Requesters
         // Check if square is targetable by opponent piece. Checks for Pawn in a second time.
 
         // Check for all pieces, expect Pawn
-        [Queen, Tower, Bishop, Knight, King].iter().any(|&kind|
+        let c_square: Coords = square.into();
+
+        [Queen, Tower, Bishop, Knight].iter().any(|&kind|
         {
             let piece = Piece { kind: kind, color: opponent_color}; 
             let (_sighters_possible_squares, sighters) = basic_moves_for_piece_from_square(self, square, piece);
@@ -217,7 +219,6 @@ impl Board { // Requesters
         } )  
         ||
         { // Check for pawn
-            let c_square: Coords = square.into();
             let direction_in_which_is_sighter = opponent_color.the_other().as_direction();
             to_square_vec(&vec![
                 c_square + ( 1, direction_in_which_is_sighter),
@@ -230,6 +231,14 @@ impl Board { // Requesters
                         None => false
                     }
                 } )
+        }
+        || { // Check for King, but whithout using bascic_moves_for_piece_from_square to avoid recursive call.
+            let king_coords: Coords = self.squares_with(crate::piece!(opponent_color, King))[0].into();
+            let steps: Vec<(i8, i8)> = vec![(-1,0), (1,0), (0,-1), (0,1), (-1,-1), (1,1), (1,-1), (-1,1)];
+            steps.iter().any(|&step| {
+                let target: Coords = king_coords + step;
+                target == c_square && self.square_is_free(target.into())
+            })
         }
 
     }

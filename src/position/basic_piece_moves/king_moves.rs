@@ -10,11 +10,19 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
     // This function does not take in account the fact that the piece might be pined, since it's more efficient to calculate the reachable 
     // squares of the pieces that are not pinned only.
     let cstart =Coords::from(start);
-    let steps: Vec<(i8, i8)> = vec![(-1,0), (1,0), (0,-1), (0,1), (-1,-1), (1,1), (1,-1), (-1,1)];
+    let steps: Vec<(i8, i8)> = vec![
+        ( 1, 1), ( 0, 1), ( 1, 1),
+        (-1, 0), /*King*/ ( 1, 0),
+        (-1,-1), ( 0,-1), ( 1,-1)
+        ];
     let mut coords_in_reach: CoordsVec = steps.iter().map(|&step|cstart + step).collect();
     coords_in_reach.retain(|&target| target.in_board());
-    board.targetables_and_stared_pieces(
+    let (mut candidate_targets, stared_pieces) = board.targetables_and_stared_pieces(
         to_square_vec(&coords_in_reach),
         color.the_other()
-    )
+    );
+    candidate_targets.retain(|&candidate|
+        board.square_is_in_sight_of_opponent(candidate, color.the_other()));
+    
+    (candidate_targets, stared_pieces)
 }
