@@ -10,10 +10,9 @@ use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square, basic_
 
 impl Board { // Requesters
 
-    pub fn all_moves(&mut self) -> Vec<Coup> {
+    pub fn all_moves(& self) -> Vec<Coup> {
         // Returns all possible moves (aka coups) for player to move.
-
-        self.update_info();
+        // The board infos should be up to date (use self.update_info()).
 
         let mut moves: Vec<Coup> = Vec::new();
 
@@ -260,8 +259,12 @@ impl Board { // Requesters
 
     fn would_check(&self, coup: Coup, king_color: Color) -> bool {
         let sim = self.simulate_coup(coup);
-        let king_square: Square = sim.squares_with(crate::piece!(king_color, King))[0];
-        sim.square_is_in_sight_of_opponent(king_square, king_color.the_other())
-    } 
+        sim.is_checked(king_color)
+    }
+
+    pub fn is_checked(&self, player_color: Color) -> bool {
+        let king_square: Square = self.squares_with(crate::piece!(player_color, King))[0];
+        self.square_is_in_sight_of_opponent(king_square, player_color.the_other())
+    }
 
 }
