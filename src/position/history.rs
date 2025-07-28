@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use crate::position::{
-    coup::{Coup},
+    board::types_and_structs::{Board, BoardMap}, coup::{self, Coup}
 };
 
 
@@ -43,4 +45,36 @@ impl History {
             true => Some(self.turns[n-1].clone()),
         }
     }
+
+    pub fn all_boards(&self) -> Vec<Board> {
+
+        let mut all_boards: Vec<Board> = Vec::new();
+        let mut board_at_coup = Board::at_start_state();
+
+        for turn in &self.turns {
+            board_at_coup.execute(turn.white_coup);
+            all_boards.push(board_at_coup.clone());
+
+            if let Some(black_coup) = turn.black_coup {
+                board_at_coup.execute(black_coup);
+                all_boards.push(board_at_coup.clone());
+            } else {
+                break
+            }
+        }
+        all_boards
+    }
+
+    pub fn max_times_board_occured(&self) -> usize {
+        let all_boards:Vec<String> = self.all_boards().iter().map(|board| board.to_fen_map()).collect();
+        let mut pos_counter: HashMap<String, usize> = HashMap::new();
+        for map in all_boards {
+            *pos_counter.entry(map).or_default() += 1;
+        }
+        match pos_counter.values().max() {
+            Some(&n) => n,
+            None => 0
+        }    
+    }
+
 }
