@@ -35,11 +35,35 @@ impl fmt::Display for Board {
     }
 }
 
-/* impl Board {
-    fn show_castle_rights(&self) {
-        println!("\n white can a castle: {}", self.white_can_a_castle);
-        println!("\n white can h castle: {}", self.white_can_h_castle);
-        println!("\n black can a castle: {}", self.black_can_a_castle);
-        println!("\n black can h castle: {}", self.black_can_h_castle);
+impl Board {
+    pub fn to_fen_map(&self) -> String {
+        let mut fen = String::new();
+        let mut empty_squares = 0;
+
+        for row in Row::iter().rev() {
+            for col in Column::iter() {
+                let square = square!((col, row));
+                match self.opt_piece_at(square) {
+                    Some(piece) => {
+                        if empty_squares > 0 {
+                            fen.push_str(&empty_squares.to_string());
+                            empty_squares = 0;
+                        }
+                        let piece_char = piece.as_char();
+                        fen.push(piece_char);
+                    }
+                    None => empty_squares += 1,
+                }
+            }
+            if empty_squares > 0 {
+                fen.push_str(&empty_squares.to_string());
+                empty_squares = 0;
+            }
+            if row != Row::R8 {
+                fen.push('/');
+            }
+        }
+        fen
     }
-} */
+    
+}
