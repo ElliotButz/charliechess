@@ -10,6 +10,8 @@ pub struct Turn {
     pub white_coup: Coup,
     pub black_coup: Option<Coup> // None if game ends after white's move.
 } 
+
+#[derive(Clone)]
 pub struct History {
     turns: Vec<Turn>
 }
@@ -74,6 +76,10 @@ impl History {
             Some(&n) => n,
             None => 0
         }    
+    }
+
+    pub fn n_turns(&self) -> usize {
+        self.turns.len()
     }
 
 }

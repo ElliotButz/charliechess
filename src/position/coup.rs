@@ -11,7 +11,6 @@ use crate::square;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CoupKind { Normal, Castle }
 
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Coup {
     pub start: Square,

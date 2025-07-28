@@ -12,7 +12,7 @@ impl Board { // Editors
 
     fn extract_piece_of_square(&mut self, square: Square) -> Piece {
         // Remove a Piece from a square and return it.
-        self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap.")
+        self.extract_optionnal_piece_of_square(square).expect("Tried to extract Piece from an emtpy square in boardmap: {square}")
     }
 
     fn extract_optionnal_piece_of_square(&mut self, square: Square) -> Option<Piece> {
@@ -134,6 +134,7 @@ impl Board { // Editors
     }
 
     pub fn update_info(&mut self) {
+        self.player_to_play = self.player_to_play.the_other(); 
         self.update_king_safety();
         self.update_castle_rights();
         self.update_pines();

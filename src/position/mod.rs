@@ -10,11 +10,13 @@ pub mod history;
 pub mod coup;
 pub mod basic_piece_moves;
 
+#[derive(Clone)]
 pub struct Position {
-    board: Board,
-    history: History
+    pub board: Board,
+    pub history: History
 }
 
+#[derive(PartialEq, Eq, Debug)]
 pub enum PositionState {
     Won(Color), Draw, Ongoing
 }
@@ -30,7 +32,8 @@ impl Position {
             true => { 
                 self.board.execute(coup); 
                 self.update_history(coup);
-                Ok(self.state()) }
+                Ok(self.state())
+            }
             false => { Err(PositionError::IllegalMove(coup)) }
         }  
     }
@@ -52,6 +55,12 @@ impl Position {
         }
     }
 
+    pub fn new() -> Self {
+        Position {
+            board: Board::at_start_state(),
+            history: History::new()
+        }
+    }
     fn update_history(&mut self, coup: Coup) {
         self.history.add_coup(coup);
     }
