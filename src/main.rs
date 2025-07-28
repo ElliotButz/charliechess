@@ -1,6 +1,4 @@
 extern crate num_derive;
-use std::env;
-
 
 pub mod position;
 
@@ -22,4 +20,6 @@ fn main() {
         Ok(coup) => println!("{coup}"),
         Err(statement) => println!("{statement}")
     }
+
+    println!("{}", board.to_fen_map())
 }

@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::position::{board::types_and_structs::Board, color::Color, coup::Coup, history::History};
 
 pub mod board;
@@ -13,25 +15,59 @@ pub struct Position {
     history: History
 }
 
+pub enum PositionState {
+    Won(Color), Draw, Ongoing
+}
+
 impl Position {
 
-    fn is_draw(&self) -> bool {
-        todo!()
+    pub fn legal_moves(& self) -> Vec<Coup> {
+        self.board.all_moves()
+    } 
+
+    pub fn update(&mut self, coup: Coup) -> Result<PositionState, PositionError> {
+        match self.legal_moves().contains(&coup) {
+            true => { 
+                self.board.execute(coup); 
+                self.update_history(coup);
+                Ok(self.state()) }
+            false => { Err(PositionError::IllegalMove(coup)) }
+        }  
     }
 
-    fn is_mate(&self) -> bool {
-        todo!()
+    pub fn state(&self) -> PositionState {
+        let player = self.player_to_move();
+        let moves = self.legal_moves();
+        let king_is_checked = self.board.is_checked(player);
+
+        match moves.is_empty() {
+            true => match king_is_checked {
+                true => PositionState::Won(player.the_other()),
+                false => PositionState::Draw
+            }
+            false => match self.history.max_times_board_occured() < 3 {
+                true => PositionState::Ongoing,
+                false => PositionState::Draw 
+            } 
+        }
     }
 
-    fn is_stale_mate(self) -> bool {
-        todo!()
-    }
-
-    fn update_hitory(&mut self, coup: Coup) {
-        todo!()
+    fn update_history(&mut self, coup: Coup) {
+        self.history.add_coup(coup);
     }
 
     fn player_to_move(&self) -> Color {
-        todo!()
+        self.board.player_to_play
+    }
+}
+
+#[derive(Debug)]
+pub enum PositionError { IllegalMove(Coup) }
+
+impl fmt::Display for PositionError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::IllegalMove(coup) => write!(f, "Illegal move: {coup}"),
+        }
     }
 }

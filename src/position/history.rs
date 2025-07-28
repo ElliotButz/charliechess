@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::position::{
-    board::types_and_structs::{Board, BoardMap}, coup::{self, Coup}
+    board::types_and_structs::{Board}, coup::{Coup}
 };
 
 
@@ -14,7 +14,6 @@ pub struct History {
     turns: Vec<Turn>
 }
 
-#[allow(dead_code)]
 impl History {
     
     pub fn new() -> History {
