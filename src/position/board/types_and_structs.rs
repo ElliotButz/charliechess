@@ -9,6 +9,7 @@ use crate::position::{
 
 pub type BoardMap = HashMap<Square,Piece>;
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct Board {
     pub map: BoardMap,
     pub player_to_play: Color,

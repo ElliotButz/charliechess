@@ -10,16 +10,16 @@ use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square, basic_
 
 impl Board { // Requesters
 
-    pub fn all_moves(&mut self) -> (Vec<Coup>,Vec<Coup>) {
-        // Returns all possible moves (aka coups) for white and black player.
+    pub fn all_moves(&mut self) -> Vec<Coup> {
+        // Returns all possible moves (aka coups) for player to move.
 
         self.update_info();
 
-        let mut white_moves: Vec<Coup> = Vec::new();
-        let mut black_moves: Vec<Coup> = Vec::new(); 
+        let mut moves: Vec<Coup> = Vec::new();
 
-        for (&square, &_piece) in self.map.iter().filter(
-            |(square, _piece)| !self.squares_with_pined_pieces.contains(square) 
+        for (&square, &_piece) in self.map.iter().filter( // Lets consider pieces of the player to play and the one that are not pined.
+            |(square, piece)|
+            (!self.squares_with_pined_pieces.contains(square)) && (piece.color == self.player_to_play)
         ) { 
             let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(self, square);
             for &target_square in targetable_squares.iter() {
@@ -31,21 +31,25 @@ impl Board { // Requesters
                     taken: self.opt_piece_at(target_square),
                     kind: CoupKind::Normal
                 };
-                match &mover_piece.color {
-                    Color::White => white_moves.push(coup),
-                    Color::Black => black_moves.push(coup),
-                };
+                if !self.would_check(coup, self.player_to_play) {moves.push(coup)}
             }
         };
 
-        if self.black_can_h_castle { black_moves.push(Coup::black_h_castle()) };
-        if self.black_can_a_castle { black_moves.push(Coup::black_a_castle()) };
-        if self.white_can_h_castle { white_moves.push(Coup::white_h_castle()) };
-        if self.white_can_a_castle { white_moves.push(Coup::white_a_castle()) };
 
+        // Add caslte if legal.
+        match self.player_to_play {
+            Color::White => {
+                if self.white_can_h_castle { moves.push(Coup::white_h_castle()) };
+                if self.white_can_a_castle { moves.push(Coup::white_a_castle()) };
+            },
+            Color::Black => {
+                if self.black_can_h_castle { moves.push(Coup::black_h_castle()) };
+                if self.black_can_a_castle { moves.push(Coup::black_a_castle()) };
+            }
+        }
 
-
-        (white_moves, black_moves)}
+        moves
+    }
     
     pub fn opt_piece_at(&self, square: Square) -> Option<Piece> {
         self.map.get(&square).copied()
@@ -245,9 +249,19 @@ impl Board { // Requesters
 
     pub fn is_legal(&mut self, coup: Coup) -> bool {
         self.update_info();
-        let (white_legal_moves, black_legal_moves) = self.all_moves();
-        white_legal_moves.contains(&coup) | black_legal_moves.contains(&coup) 
+        self.all_moves().contains(&coup)
     }
 
+    pub fn simulate_coup(&self, coup: Coup) -> Self {
+        let mut simulated = self.clone();
+        simulated.execute(coup);
+        simulated
+    }
+
+    fn would_check(&self, coup: Coup, king_color: Color) -> bool {
+        let sim = self.simulate_coup(coup);
+        let king_square: Square = sim.squares_with(crate::piece!(king_color, King))[0];
+        sim.square_is_in_sight_of_opponent(king_square, king_color.the_other())
+    } 
 
 }

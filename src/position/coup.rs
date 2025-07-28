@@ -172,11 +172,11 @@ impl TryFrom<(&str, &mut Board, Color)> for Coup {
 
             _other => {
 
-                let two_squares = Regex::new(r"[\wa-h][1-8][\wa-h][1-8]").unwrap();
+                let two_squares = Regex::new(r"[\wa-h][1-8]-[\wa-h][1-8]").unwrap();
                 if !two_squares.is_match(&move_str) { return Err(StrCoupError::UnrecognizedInput) } 
 
                 let start = Square::try_from(&move_str[0..2]).map_err(|_| StrCoupError::UnrecognizedInput)?;
-                let end = Square::try_from(&move_str[2..4]).map_err(|_| StrCoupError::UnrecognizedInput)?;
+                let end = Square::try_from(&move_str[3..5]).map_err(|_| StrCoupError::UnrecognizedInput)?;
 
                 Coup::try_from((start, end, false, board)).map_err(|err| StrCoupError::CoupError(err))
             }

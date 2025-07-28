@@ -1,4 +1,4 @@
-use crate::{position::{board::types_and_structs::Board, history::History}};
+use crate::position::{board::types_and_structs::Board, color::Color, coup::Coup, history::History};
 
 pub mod board;
 pub mod color;
@@ -15,7 +15,23 @@ pub struct Position {
 
 impl Position {
 
-    fn check_draw(&self) {
+    fn is_draw(&self) -> bool {
+        todo!()
+    }
+
+    fn is_mate(&self) -> bool {
+        todo!()
+    }
+
+    fn is_stale_mate(self) -> bool {
+        todo!()
+    }
+
+    fn update_hitory(&mut self, coup: Coup) {
+        todo!()
+    }
+
+    fn player_to_move(&self) -> Color {
         todo!()
     }
 }
