@@ -6,66 +6,12 @@ use crate::position::color::Color;
 use crate::position::coup::{Coup, CoupKind};
 use crate::position::pieces::{Piece, PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
 use crate::position::board::types_and_structs::Board;
-use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square, basic_moves_for_piece_from_square};
+use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square};
 
 impl Board { // Requesters
 
-    pub fn all_moves(&self) -> Vec<Coup> {
-        // Returns all possible moves (aka coups) for player to move.
-        // The board infos should be up to date (use self.update_info()).
 
-        let mut moves: Vec<Coup> = Vec::new();
-
-        for (&square, &piece) in self.map.iter().filter( // Lets consider pieces of the player to play and the one that are not pined.
-            |(square, piece)|
-            (!self.squares_with_pined_pieces.contains(square)) && (piece.color == self.player_to_play)
-        ) {
-            let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(self, square);
-            for &target_square in targetable_squares.iter() {
-                let mover_piece = self.piece_at(square);
-
-                if piece.kind == Pawn && (target_square.row == Row::R8 || target_square.row == Row::R1) {
-                    for promot_kind in [Knight, Bishop, Tower, Queen] {
-                        let coup = Coup {
-                            start: square,
-                            end: target_square,
-                            piece: mover_piece,
-                            taken: self.opt_piece_at(target_square),
-                            kind: CoupKind::Promotion(promot_kind)
-                        };
-                        self.try_add_coup(&mut moves, coup);
-                    }
-                } else {
-                    let coup = Coup {
-                        start: square,
-                        end: target_square,
-                        piece: mover_piece,
-                        taken: self.opt_piece_at(target_square),
-                        kind: CoupKind::Normal
-                    };
-                    self.try_add_coup(&mut moves, coup);
-                };
-            }
-
-        };
-
-
-        // Add caslte if legal.
-        match self.player_to_play {
-            Color::White => {
-                if self.white_can_h_castle { moves.push(Coup::white_h_castle()) };
-                if self.white_can_a_castle { moves.push(Coup::white_a_castle()) };
-            },
-            Color::Black => {
-                if self.black_can_h_castle { moves.push(Coup::black_h_castle()) };
-                if self.black_can_a_castle { moves.push(Coup::black_a_castle()) };
-            }
-        }
-
-        moves
-    }
-
-    fn try_add_coup(&self, vec_coup: &mut Vec<Coup>, coup: Coup) {
+    pub fn try_add_coup(&self, vec_coup: &mut Vec<Coup>, coup: Coup) {
         if !self.would_check(coup, self.player_to_play) {vec_coup.push(coup)}
 
     }
@@ -172,7 +118,7 @@ impl Board { // Requesters
 
     pub fn step_in_directions_til_piece(&self, start: Square, directions: Vec<(i8, i8)>) -> (SquareVec, Vec<Piece>) {
 
-        let mut in_all_paths = SquareVec::with_capacity(8);
+        let mut in_all_paths = SquareVec::with_capacity(13);
         let mut found_pieces = Vec::with_capacity(directions.len());
 
         for &direction in directions.iter() {
@@ -229,47 +175,27 @@ impl Board { // Requesters
     }
 
     pub fn square_is_in_sight_of_opponent(&self, square: Square, opponent_color: Color) -> bool {
-        // Check if square is targetable by opponent piece. Checks for Pawn in a second time.
+        self.all_watched_by(opponent_color).contains(&square)
+    }
 
-        // Check for all pieces, expect Pawn
-        let c_square: Coords = square.into();
+    pub fn all_watched_by(&self, player: Color) -> SquareVec {
+        let mut all_watched = Vec::with_capacity(64);
 
-        [Queen, Tower, Bishop, Knight].iter().any(|&kind|
-        {
-            let piece = Piece { kind: kind, color: opponent_color}; 
-            let (_sighters_possible_squares, sighters) = basic_moves_for_piece_from_square(self, square, piece);
-            sighters.contains(&piece)
-        } )  
-        ||
-        { // Check for pawn
-            let direction_in_which_is_sighter = opponent_color.the_other().as_direction();
-            to_square_vec(&vec![
-                c_square + ( 1, direction_in_which_is_sighter),
-                c_square + (-1, direction_in_which_is_sighter)
-                ]).iter().any(|&potential_pawn_sighter_square|
-                {
-                    match self.opt_piece_at(potential_pawn_sighter_square) {
-                        Some(piece) => {
-                            piece == Piece {kind: Pawn, color: opponent_color}},
-                        None => false
-                    }
-                } )
+        for (_watcher, watched_squares) in match player {
+            Color::Black => &self.black_watchers_and_watched,
+            Color::White => &self.white_watchers_and_watched
+        } { 
+            all_watched.extend(watched_squares);
         }
-        || { // Check for King, but whithout using bascic_moves_for_piece_from_square to avoid recursive call.
-            let king_coords: Coords = self.squares_with(crate::piece!(opponent_color, King))[0].into();
-            let steps: Vec<(i8, i8)> = vec![(-1,0), (1,0), (0,-1), (0,1), (-1,-1), (1,1), (1,-1), (-1,1)];
-            steps.iter().any(|&step| {
-                let target: Coords = king_coords + step;
-                target == c_square && self.square_is_free(target.into())
-            })
-        }
-
+        all_watched
     }
 
     pub fn is_legal(&mut self, coup: Coup) -> bool {
-        self.update_info();
-        self.all_moves().contains(&coup)
+        let resultant_board = self.simulate_coup(coup);
+
+        resultant_board.possible_moves.contains(&coup)
     }
+
 
     pub fn simulate_coup(&self, coup: Coup) -> Self {
         let mut simulated = self.clone();
@@ -277,14 +203,14 @@ impl Board { // Requesters
         simulated
     }
 
-    fn would_check(&self, coup: Coup, king_color: Color) -> bool {
+    fn would_check(&self, coup: Coup, player_color: Color) -> bool {
         let sim = self.simulate_coup(coup);
-        sim.is_checked(king_color)
+        sim.is_checked(player_color)
     }
 
     pub fn is_checked(&self, player_color: Color) -> bool {
         let king_square: Square = self.squares_with(crate::piece!(player_color, King))[0];
-        self.square_is_in_sight_of_opponent(king_square, player_color.the_other())
+        self.all_watched_by(player_color.the_other()).contains(&king_square)
     }
 
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use strum::IntoEnumIterator;
 use crate::position::board::types_and_structs::BoardMap;
 use crate::position::coup::Coup;
@@ -10,10 +12,13 @@ use crate::position::board::types_and_structs::Board;
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
-        Board {
+        let mut new_board = Board {
             map: BoardMap::with_capacity(64),
             player_to_play: White,
             last_move: Coup::coup_zero(),
+            black_watchers_and_watched: HashMap::new(),
+            white_watchers_and_watched: HashMap::new(),
+            possible_moves: Vec::new(),
             black_king_is_checked: false,
             white_king_is_checked: false,
             black_can_h_castle: false,
@@ -26,9 +31,11 @@ impl Board { // Initiators and init helpers
             a_black_tower_has_moved: false,
             h_white_tower_has_moved: false,
             a_white_tower_has_moved: false,
-            squares_with_pined_pieces  : SquareVec::with_capacity(8),
-            squares_with_pining_pieces : SquareVec::with_capacity(8),
-        }
+/*             squares_with_pined_pieces  : SquareVec::with_capacity(8),
+            squares_with_pining_pieces : SquareVec::with_capacity(8), */
+        };
+        new_board.update_info();
+        new_board
     }
 
     pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator

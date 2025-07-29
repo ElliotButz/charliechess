@@ -7,7 +7,7 @@ use crate::{
     }};
 
 pub struct Game {
-    position: Position,
+    pub(crate) position: Position,
     black: Player,
     white: Player,
 }
@@ -45,12 +45,17 @@ impl Game {
                 Ok(_) => {
                     if show_progress {
                     println!("{}", self.position.board);
-                    thread::sleep(time::Duration::from_millis(10))
+                    thread::sleep(time::Duration::from_millis(0))
                     }
                 },
                 Err(error) => { println!("{error}") }
             }
         }
         return self.position.clone()
+    }
+
+    pub fn retrace(&self) {
+        self.position.history.show();
+        println!("{:?}", self.position.state());
     }
 }

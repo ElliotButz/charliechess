@@ -66,6 +66,12 @@ impl History {
         all_boards
     }
 
+    pub fn show(&self) {
+        for board in self.all_boards() {
+            println!("{board}")
+        }
+    }
+
     pub fn max_times_board_occured(&self) -> usize {
         let all_boards:Vec<String> = self.all_boards().iter().map(|board| board.to_fen_map()).collect();
         let mut pos_counter: HashMap<String, usize> = HashMap::new();

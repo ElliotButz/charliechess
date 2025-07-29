@@ -18,3 +18,18 @@ pub fn reachable_squares(board:&Board, start: Square, color:Color) -> (SquareVec
         color.the_other()
     )
 }
+
+pub fn watched_squares(start:Square) -> SquareVec {
+    // squares where the king can go if it is not blocked
+    let cstart =Coords::from(start);
+    let steps: Vec<(i8, i8)> = vec![
+               (-1, 2),      ( 1, 2),
+        (-2, 1),                     ( 2, 1),
+                      /*Knight*/ 
+        (-2,-1),                     ( 2,-1),
+               (-1, -2),     ( 1, -2),
+
+        ];
+    let coords_in_reach: CoordsVec = steps.iter().map(|&step|cstart + step).collect();
+    to_square_vec(&coords_in_reach)
+    }

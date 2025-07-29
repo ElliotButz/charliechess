@@ -9,3 +9,13 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
     // squares of the pieces that are not pinned only.
     board.step_in_directions_til_target(start, vec![(-1,0), (1,0), (0,-1), (0,1), (-1,-1), (1,1), (1,-1), (-1,1)], color.the_other())
 }
+
+pub fn watched_squares(board: &Board, start: Square) -> SquareVec {
+    // squares where the king can go if it is not blocked
+    let directions: Vec<(i8, i8)> = vec![
+        (-1, 1), ( 0, 1), ( 1, 1),
+        (-1, 0),/*Queen*/ ( 1, 0),
+        (-1,-1), ( 0,-1), ( 1,-1)
+        ];
+    board.step_in_directions_til_piece(start, directions).0
+    }

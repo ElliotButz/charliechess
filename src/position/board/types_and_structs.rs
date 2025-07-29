@@ -14,6 +14,9 @@ pub struct Board {
     pub map: BoardMap,
     pub player_to_play: Color,
     pub last_move: Coup,
+    pub white_watchers_and_watched: HashMap<Square,SquareVec>,
+    pub black_watchers_and_watched: HashMap<Square,SquareVec>,
+    pub possible_moves: Vec<Coup>,
 
     pub black_king_is_checked: bool,
     pub white_king_is_checked: bool,
@@ -31,6 +34,6 @@ pub struct Board {
     pub white_can_h_castle: bool,
     pub white_can_a_castle: bool,
 
-    pub squares_with_pined_pieces : SquareVec,
-    pub squares_with_pining_pieces: SquareVec   
+/*     pub squares_with_pined_pieces : SquareVec,
+    pub squares_with_pining_pieces: SquareVec   */ 
 }

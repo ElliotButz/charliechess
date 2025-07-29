@@ -24,7 +24,7 @@ pub enum PositionState {
 impl Position {
 
     pub fn legal_moves(& self) -> Vec<Coup> {
-        self.board.all_moves()
+        self.board.possible_moves.clone()
     } 
 
     pub fn update(&mut self, coup: Coup) -> Result<PositionState, PositionError> {

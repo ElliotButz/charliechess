@@ -1,11 +1,12 @@
 extern crate unwrap;
 use unwrap::unwrap;
 
+use crate::position::coordinates::converters::to_square_vec;
 use crate::{coords};
 use crate::position::color::{Color,Color::{White, Black}};
 use crate::position::board::types_and_structs::Board;
 use crate::position::coup::Coup;
-use crate::position::coordinates::types_and_structs::{Square, SquareVec, Row::*};
+use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Row::*, Square, SquareVec};
 use crate::position::pieces::Piece;
 
 pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {
@@ -74,3 +75,16 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
 
     (in_reach, found_pieces)
 }
+
+pub fn watched_squares(start:Square, color: Color) -> SquareVec {
+    // squares where the king can go if it is not blocked
+    let cstart =Coords::from(start);
+    let d = color.as_direction();
+
+    let steps: Vec<(i8, i8)> = vec![
+        (-1, d),      ( 1, d)
+              /*pawn */ 
+        ];
+    let coords_in_reach: CoordsVec = steps.iter().map(|&step|cstart + step).collect();
+    to_square_vec(&coords_in_reach)
+    }
