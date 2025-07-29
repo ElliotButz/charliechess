@@ -146,15 +146,47 @@ impl Board { // Editors
     2: Extract the possible Piece at target_square (taken : Option<Piece>),
     3: Place the Piece displaced from start_square at target_square,
     */
+        let mut touched_piece: Vec<Piece> = Vec::new();
         let displaced: Piece = self.extract_piece_of_square(start_square);
         let taken: Option<Piece> = self.extract_optionnal_piece_of_square(target_square);
         self.add_piece_at_coords(target_square, displaced);
+
+        touched_piece.push(displaced);
+        match taken {
+            Some(piece) => { touched_piece.push(piece); },
+            None => {}
+        }
+
+        for &piece in touched_piece.iter() {
+            match piece.kind {
+                King => match piece.color {
+                    Color::White => self.white_king_has_moved = true,
+                    Color::Black => self.black_king_has_moved = true
+                },
+                Tower => match piece.color {
+                    Color::White => match start_square.col {
+                        Column::H => self.h_white_tower_has_moved = true,
+                        Column::A => self.a_white_tower_has_moved = true,
+                        _ => {}
+                    },
+                    Color::Black => match start_square.col {
+                        Column::H => self.h_black_tower_has_moved = true,
+                        Column::A => self.a_black_tower_has_moved = true,
+                        _ => {}
+                    },
+                },
+                _ => {}
+            }
+        } 
+
         taken
     }
 
     pub fn execute(&mut self, coup: Coup) {
         match coup.kind {
-            Normal => { self.move_piece(coup.start, coup.end); },
+            Normal => {
+                self.move_piece(coup.start, coup.end);
+            },
             Castle => {
                 let row = coup.start.row;
                 if coup.end.col == Column::C { // Long castle
