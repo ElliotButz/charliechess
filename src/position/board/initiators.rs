@@ -12,7 +12,7 @@ use crate::position::board::types_and_structs::Board;
 impl Board { // Initiators and init helpers
 
     pub fn new() -> Board { // Initiator
-        let mut new_board = Board {
+        let new_board = Board {
             map: BoardMap::with_capacity(64),
             player_to_play: White,
             last_move: Coup::coup_zero(),
@@ -34,17 +34,18 @@ impl Board { // Initiators and init helpers
 /*             squares_with_pined_pieces  : SquareVec::with_capacity(8),
             squares_with_pining_pieces : SquareVec::with_capacity(8), */
         };
-        new_board.update_info();
         new_board
     }
 
     pub fn from_boardmap(piece_by_coords:BoardMap) -> Board{ // Initiator
         let mut board = Board::new();
         board.map = piece_by_coords;
+        board.update_info(2);
         board
     }
 
     pub fn at_start_state() -> Board { // Initiator
+        println!("ASS");
         Board::from_boardmap(Board::make_start_state())
     }
 

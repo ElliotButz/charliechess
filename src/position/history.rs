@@ -13,13 +13,16 @@ pub struct Turn {
 
 #[derive(Clone)]
 pub struct History {
-    turns: Vec<Turn>
+    turns: Vec<Turn>,
+    fen_boards: Vec<String>,
+    current_board: Board
+
 }
 
 impl History {
     
     pub fn new() -> History {
-        History{turns: Vec::new()}
+        History{turns: Vec::new(), fen_boards: vec![], current_board: Board::at_start_state()}
     }
 
     pub fn add_coup(&mut self, coup: Coup) {
@@ -38,6 +41,9 @@ impl History {
         else { need_new_turn = true }
 
         if need_new_turn { self.turns.push( Turn {white_coup: coup, black_coup: None}) }
+
+        self.current_board.execute(coup, 0);
+        self.fen_boards.push(self.current_board.to_fen_map());
     }
 
     pub fn nth_turn(&self, n:usize) -> Option<Turn> {
@@ -47,23 +53,8 @@ impl History {
         }
     }
 
-    pub fn all_boards(&self) -> Vec<Board> {
-
-        let mut all_boards: Vec<Board> = Vec::new();
-        let mut board_at_coup = Board::at_start_state();
-
-        for turn in &self.turns {
-            board_at_coup.execute(turn.white_coup);
-            all_boards.push(board_at_coup.clone());
-
-            if let Some(black_coup) = turn.black_coup {
-                board_at_coup.execute(black_coup);
-                all_boards.push(board_at_coup.clone());
-            } else {
-                break
-            }
-        }
-        all_boards
+    pub fn all_boards(&self) -> Vec<String> {
+        self.fen_boards.clone()
     }
 
     pub fn show(&self) {
@@ -73,7 +64,7 @@ impl History {
     }
 
     pub fn max_times_board_occured(&self) -> usize {
-        let all_boards:Vec<String> = self.all_boards().iter().map(|board| board.to_fen_map()).collect();
+        let all_boards:Vec<String> = self.all_boards();
         let mut pos_counter: HashMap<String, usize> = HashMap::new();
         for map in all_boards {
             *pos_counter.entry(map).or_default() += 1;

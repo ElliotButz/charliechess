@@ -30,7 +30,7 @@ impl Position {
     pub fn update(&mut self, coup: Coup) -> Result<PositionState, PositionError> {
         match self.legal_moves().contains(&coup) {
             true => { 
-                self.board.execute(coup); 
+                self.board.execute(coup, 2); 
                 self.update_history(coup);
                 Ok(self.state())
             }

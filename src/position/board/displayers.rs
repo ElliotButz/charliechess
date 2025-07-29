@@ -2,6 +2,7 @@ use std::fmt;
 use colored::{ColoredString, Colorize};
 use strum::IntoEnumIterator;
 
+use crate::position::coordinates::types_and_structs::Square;
 use crate::{square};
 use crate::position::{
     board::types_and_structs::Board,
@@ -10,6 +11,9 @@ use crate::position::{
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+
+        let last =  self.last_move;
+        let startend = vec![last.start, last.end];
 
         let mut board_str = String::from(".  .  .  .  .  .  .  .  .\n");
         for row in Row::iter().rev(){
@@ -27,7 +31,7 @@ impl fmt::Display for Board {
                 };
                 board_str.push_str(".");
                 board_str.push_str(&piece_on_case_str);
-                board_str.push_str(" ");
+                if startend.contains(&Square {col, row } ) {board_str.push_str("_");} else {board_str.push_str(" ");}
             }
             board_str.push_str(".\n");
         }

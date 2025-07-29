@@ -116,9 +116,6 @@ impl TryFrom<(Square, Square, bool, &mut Board)> for Coup {
     fn try_from(start_end_castle_board: (Square, Square, bool, &mut Board)) -> Result<Self, Self::Error> {
 
         let (start, end, castle, board) = start_end_castle_board;
-
-        board.update_info();
-
         // Piece exists ?
         let Some(moved_piece) = board.opt_piece_at(start) else { return Err(CoupError::EmptyStartSquare) } ;
         

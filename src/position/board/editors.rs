@@ -25,7 +25,7 @@ impl Board { // Editors
         self.map.insert(coords, piece);
     }
 
-    fn can_castle(
+    pub fn can_castle(
             &self,
             king_color: Color,
             tower_moved: bool,
@@ -58,166 +58,6 @@ impl Board { // Editors
             can_castle
         }
 
-    fn update_castle_rights(& mut self) {
-       
-        self.white_can_a_castle = self.can_castle(
-            Color::White,
-            self.a_white_tower_has_moved,
-            self.white_king_has_moved,
-            1,
-            4
-        );
-        self.white_can_h_castle = self.can_castle(
-            Color::White,
-            self.h_white_tower_has_moved,
-            self.white_king_has_moved,
-            5,
-            7
-        );
-        self.black_can_a_castle = self.can_castle(
-            Color::Black,
-            self.a_black_tower_has_moved,
-            self.black_king_has_moved,
-            1,
-            4
-        );
-        self.black_can_h_castle = self.can_castle(
-            Color::Black,
-            self.h_black_tower_has_moved,
-            self.black_king_has_moved,
-            5,
-            7
-        );
-    }
-
-    fn update_king_safety(&mut self) {
-
-        for player_color in [Color::White, Color::Black] {
-            println!("{}", {&self});
-            let king_is_checked = self.is_checked(player_color);
-            match player_color {
-                Color::Black => self.black_king_is_checked = king_is_checked,
-                Color::White => self.white_king_is_checked = king_is_checked
-            }
-        }
-    }
-
-   /*  fn update_pines(&mut self) {
-
-        let kind_steps: HashMap<PieceKind, Vec<(i8,i8)>> = HashMap::from([
-            (Bishop, vec![(1,1), (1,-1), (-1,-1), (-1,1)]),
-            (Tower,  vec![(0,1), ( 1,0), ( 0,-1), (-1,0)])
-        ]);
-
-        for king_color in [Color::White, Color::Black] {
-            let king_square = self.squares_with(piece!(king_color, King))[0];
-            for (&kind, steps) in &kind_steps {
-                let opponent = king_color.the_other();
-                let dangers = vec![
-                    Piece { kind: kind,  color: opponent },
-                    Piece { kind: Queen, color: opponent }
-                ];
-                for &step in steps {
-                    let mut squares_and_pieces_on_way: ordered_hash_map::OrderedHashMap<Square, Piece> = self.step_through_piece(king_square, step.into());
-                    if let Some((pined_square,  pined_piece )) = squares_and_pieces_on_way.pop_front_entry() {
-                        if let Some((piner_square,  piner_piece )) = squares_and_pieces_on_way.pop_front_entry() {
-                            if pined_piece.color == king_color && dangers.contains(&piner_piece) {
-                                self.squares_with_pined_pieces .push(pined_square);
-                                self.squares_with_pining_pieces.push(piner_square);
-                            }
-                        }
-                    }
-                }
-
-            }
-            
-        }
-    } */
-
-    /// Indicates squares watched (values) by each square with a piece of the player with trait (key).
-    pub fn update_watchers_sites_and_watched_squares(&mut self) {
-        self.white_watchers_and_watched = HashMap::new();
-        self.black_watchers_and_watched = HashMap::new();
-        for (&square, &piece) in &self.map {
-            let watched =
-                match piece.kind{
-                    Bishop => bishop_moves::watched_squares(self, square),
-                    Tower  =>  tower_moves::watched_squares(self, square),
-                    Queen  =>  queen_moves::watched_squares(self, square),
-                    Pawn   =>   pawn_moves::watched_squares(square, piece.color),
-                    Knight => knight_moves::watched_squares(square),
-                    King   =>   king_moves::watched_squares(square),
-                };
-            match piece.color {
-                Color::Black => { self.black_watchers_and_watched.insert(square, watched); }
-                Color::White => { self.white_watchers_and_watched.insert(square, watched); }
-            }
-
-        };
-    }
-
-
-    pub fn update_possible_moves(&mut self) {
-        // Returns all possible moves (aka coups) for player to move.
-        // The board infos should be up to date (use self.update_info()).
-
-        let mut moves: Vec<Coup> = Vec::new();
-
-        for (&square, &piece) in self.map.iter().filter( // Lets consider pieces of the player to play and the one that are not pined.
-            |(_square, piece)|
-            /*( !self.squares_with_pined_pieces.contains(square)) && */ (piece.color == self.player_to_play)
-        ) {
-            let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(self, square);
-            for &target_square in targetable_squares.iter() {
-                let mover_piece = self.piece_at(square);
-
-                if piece.kind == Pawn && (target_square.row == Row::R8 || target_square.row == Row::R1) {
-                    for promot_kind in [Knight, Bishop, Tower, Queen] {
-                        let coup = Coup {
-                            start: square,
-                            end: target_square,
-                            piece: mover_piece,
-                            taken: self.opt_piece_at(target_square),
-                            kind: CoupKind::Promotion(promot_kind)
-                        };
-                        self.try_add_coup(&mut moves, coup);
-                    }
-                } else {
-                    let coup = Coup {
-                        start: square,
-                        end: target_square,
-                        piece: mover_piece,
-                        taken: self.opt_piece_at(target_square),
-                        kind: CoupKind::Normal
-                    };
-                    self.try_add_coup(&mut moves, coup);
-                };
-            }
-
-        };
-
-
-        // Add caslte if legal.
-        match self.player_to_play {
-            Color::White => {
-                if self.white_can_h_castle { moves.push(Coup::white_h_castle()) };
-                if self.white_can_a_castle { moves.push(Coup::white_a_castle()) };
-            },
-            Color::Black => {
-                if self.black_can_h_castle { moves.push(Coup::black_h_castle()) };
-                if self.black_can_a_castle { moves.push(Coup::black_a_castle()) };
-            }
-        }
-
-        self.possible_moves = moves;
-    }
-
-    pub fn update_info(&mut self) {
-        self.update_watchers_sites_and_watched_squares();
-        self.update_king_safety();
-        self.update_castle_rights();
-        self.update_possible_moves();
-    }
 
     fn move_piece(&mut self, start_square: Square, target_square: Square) -> Option<Piece> {
     /*
@@ -260,7 +100,8 @@ impl Board { // Editors
         taken
     }
 
-    pub fn execute(&mut self, coup: Coup) {
+
+    pub fn execute(&mut self, coup: Coup, info_update_lvl: usize) {
         match coup.kind {
             Normal => {
                 self.move_piece(coup.start, coup.end);
@@ -286,7 +127,9 @@ impl Board { // Editors
         }
         self.last_move = coup;
         self.player_to_play = self.player_to_play.the_other();
-        self.update_info();
+
+        self.update_info(info_update_lvl);
+
     }
 
 }

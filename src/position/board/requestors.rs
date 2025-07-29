@@ -46,7 +46,6 @@ impl Board { // Requesters
                     stared.push(piece);
                 } 
             }
-            // println!("{}", can_go);
             if can_go {targetables.push(square)}
         }
     (targetables, stared)
@@ -199,7 +198,7 @@ impl Board { // Requesters
 
     pub fn simulate_coup(&self, coup: Coup) -> Self {
         let mut simulated = self.clone();
-        simulated.execute(coup);
+        simulated.execute(coup, 1);
         simulated
     }
 
