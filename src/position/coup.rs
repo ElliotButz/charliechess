@@ -9,7 +9,7 @@ use crate::position::color::Color;
 use crate::square;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum CoupKind { Normal, Castle }
+pub enum CoupKind { Normal, Castle, Promotion(PieceKind) }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Coup {

@@ -1,6 +1,6 @@
 use ordered_hash_map::OrderedHashMap;
 
-use crate::position::coordinates::types_and_structs::{Square, SquareVec, Coords, CoordsVec};
+use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Row, Square, SquareVec};
 use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
 use crate::position::coup::{Coup, CoupKind};
@@ -10,28 +10,43 @@ use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square, basic_
 
 impl Board { // Requesters
 
-    pub fn all_moves(& self) -> Vec<Coup> {
+    pub fn all_moves(&self) -> Vec<Coup> {
         // Returns all possible moves (aka coups) for player to move.
         // The board infos should be up to date (use self.update_info()).
 
         let mut moves: Vec<Coup> = Vec::new();
 
-        for (&square, &_piece) in self.map.iter().filter( // Lets consider pieces of the player to play and the one that are not pined.
+        for (&square, &piece) in self.map.iter().filter( // Lets consider pieces of the player to play and the one that are not pined.
             |(square, piece)|
             (!self.squares_with_pined_pieces.contains(square)) && (piece.color == self.player_to_play)
-        ) { 
+        ) {
             let (targetable_squares, _pieces_in_sight ) = basic_moves_for_piece_at_square(self, square);
             for &target_square in targetable_squares.iter() {
                 let mover_piece = self.piece_at(square);
-                let coup = Coup {
-                    start: square,
-                    end: target_square,
-                    piece: mover_piece,
-                    taken: self.opt_piece_at(target_square),
-                    kind: CoupKind::Normal
+
+                if piece.kind == Pawn && (target_square.row == Row::R8 || target_square.row == Row::R1) {
+                    for promot_kind in [Knight, Bishop, Tower, Queen] {
+                        let coup = Coup {
+                            start: square,
+                            end: target_square,
+                            piece: mover_piece,
+                            taken: self.opt_piece_at(target_square),
+                            kind: CoupKind::Promotion(promot_kind)
+                        };
+                        self.try_add_coup(&mut moves, coup);
+                    }
+                } else {
+                    let coup = Coup {
+                        start: square,
+                        end: target_square,
+                        piece: mover_piece,
+                        taken: self.opt_piece_at(target_square),
+                        kind: CoupKind::Normal
+                    };
+                    self.try_add_coup(&mut moves, coup);
                 };
-                if !self.would_check(coup, self.player_to_play) {moves.push(coup)}
             }
+
         };
 
 
@@ -48,6 +63,11 @@ impl Board { // Requesters
         }
 
         moves
+    }
+
+    fn try_add_coup(&self, vec_coup: &mut Vec<Coup>, coup: Coup) {
+        if !self.would_check(coup, self.player_to_play) {vec_coup.push(coup)}
+
     }
     
     pub fn opt_piece_at(&self, square: Square) -> Option<Piece> {
@@ -71,9 +91,9 @@ impl Board { // Requesters
         let mut targetables = SquareVec::new();
         let mut stared:Vec<Piece> = Vec::new();
 
-        for square in squares.iter() {
+        for &square in squares.iter() {
             let mut can_go = true;
-            match self.opt_piece_at(*square) {
+            match self.opt_piece_at(square) {
                 None => (),
                 Some(piece) => {
                     if piece.color != target_color { can_go = false }
@@ -81,7 +101,7 @@ impl Board { // Requesters
                 } 
             }
             // println!("{}", can_go);
-            if can_go {targetables.push(*square)}
+            if can_go {targetables.push(square)}
         }
     (targetables, stared)
     }

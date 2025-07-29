@@ -34,7 +34,7 @@ impl Game {
                 let side_to_play = self.position.board.player_to_play;
                 let next_coup = match side_to_play {
                     Color::White => (self.white.strategy)(&mut position),
-                    Color::Black => (self.white.strategy)(&mut position) 
+                    Color::Black => (self.black.strategy)(&mut position) 
                 };
 
                 if self.position.legal_moves().contains(&next_coup) { break next_coup }

@@ -187,6 +187,13 @@ impl Board { // Editors
             Normal => {
                 self.move_piece(coup.start, coup.end);
             },
+            Promotion(promot_kind) => {
+                self.move_piece(coup.start, coup.end);
+                self.map.insert(
+                    coup.end,
+                    Piece { color: coup.piece.color, kind: promot_kind}
+                );
+            },
             Castle => {
                 let row = coup.start.row;
                 if coup.end.col == Column::C { // Long castle

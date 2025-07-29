@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::position::{board::types_and_structs::Board, color::Color, coup::Coup, history::History};
+use crate::position::{board::types_and_structs::Board, color::Color, coordinates::displayers::vec2str, coup::Coup, history::History};
 
 pub mod board;
 pub mod color;
@@ -44,9 +44,12 @@ impl Position {
         let king_is_checked = self.board.is_checked(player);
 
         match moves.is_empty() {
-            true => match king_is_checked {
-                true => PositionState::Won(player.the_other()),
-                false => PositionState::Draw
+            true => {
+                println!("Possible moves {}", vec2str(&moves));
+                match king_is_checked {
+                    true => PositionState::Won(player.the_other()),
+                    false => PositionState::Draw
+                }
             }
             false => match self.history.max_times_board_occured() < 3 {
                 true => PositionState::Ongoing,
