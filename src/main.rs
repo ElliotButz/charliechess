@@ -16,18 +16,12 @@ fn main() {
     let p1 = Player::random();
     let p2 = Player::random();
     let mut game = Game::new(p1, p2 );
-    let outcome = game.cli_play(999, true);
-    game.position.history.show();
-    println!("{:?}\n{}",outcome.state(), outcome.board)
-/*     let mut board = Board::at_start_state();
+    use std::time::Instant;
+    let now = Instant::now();
+    let outcome = game.cli_play(100, false);
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
+    println!("Result: {:?}\nFinal board:\n{} N turns:\n{}\ntime per turn: {}",
+    outcome.state(), outcome.board, game.position.history.all_boards().len(), elapsed.as_secs_f64()/(game.position.history.all_boards().len() as f64))
 
-    println!("{board}");
-
-    let moves = board.all_moves();
-    println!("Legal moves: {}", vec2str(&moves));
-
-    match Coup::try_from(("A2-A3", &mut board, Color::Black)) {
-        Ok(coup) => println!("{coup}"),
-        Err(statement) => println!("{statement}")
-    } */
 }

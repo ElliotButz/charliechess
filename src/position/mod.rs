@@ -45,7 +45,6 @@ impl Position {
 
         match moves.is_empty() {
             true => {
-                println!("Possible moves {}", vec2str(&moves));
                 match king_is_checked {
                     true => PositionState::Won(player.the_other()),
                     false => PositionState::Draw

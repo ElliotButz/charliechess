@@ -19,14 +19,8 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
     let (candidate_targets, stared_pieces) = board.targetables_and_stared_pieces(
         to_square_vec(&coords_in_reach),
         color.the_other()
+
     );
-    // I first thought it was aBad idea because it prevent the king to take an opponent that would check him
-    // but no : opponent squares have no sight on other opponents squares.
-    // I prefere to remove it to avoid loop call.
-/*     candidate_targets.retain(|&candidate|
-        board.square_is_in_sight_of_opponent(candidate, color.the_other()));
-         */
-    println!("{}, {}",color, vec2str(&candidate_targets));
     (candidate_targets, stared_pieces)
 }
 

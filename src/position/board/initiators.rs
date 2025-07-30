@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
+use fnv::FnvHasher;
 
 use strum::IntoEnumIterator;
 use crate::position::board::types_and_structs::BoardMap;
@@ -8,6 +10,8 @@ use crate::position::coordinates::types_and_structs::{Column, Column::*, Row::*,
 use crate::position::color::Color::{White, Black};
 use crate::position::pieces::{Piece, PieceKind, PieceKind::{Pawn, Knight, Bishop, Tower, Queen, King}};
 use crate::position::board::types_and_structs::Board;
+
+type FnvHashMap<K, V> = HashMap<K, V, BuildHasherDefault<FnvHasher>>;
 
 impl Board { // Initiators and init helpers
 
@@ -45,7 +49,6 @@ impl Board { // Initiators and init helpers
     }
 
     pub fn at_start_state() -> Board { // Initiator
-        println!("ASS");
         Board::from_boardmap(Board::make_start_state())
     }
 

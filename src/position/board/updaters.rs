@@ -46,7 +46,6 @@ impl Board {
     fn update_king_safety(&mut self) {
 
         for player_color in [Color::White, Color::Black] {
-            println!("KINGSAF\n{}", {&self});
             let king_is_checked = self.is_checked(player_color);
             match player_color {
                 Color::Black => self.black_king_is_checked = king_is_checked,
