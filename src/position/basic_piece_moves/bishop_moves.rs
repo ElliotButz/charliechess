@@ -1,6 +1,6 @@
 use crate::position::color::Color;
 use crate::position::board::types_and_structs::Board;
-use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Square, SquareVec};
+use crate::position::coordinates::types_and_structs::{Square, SquareVec};
 use crate::position::pieces::Piece;
 
 pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec, Vec<Piece>) {

@@ -1,17 +1,15 @@
 use std::collections::HashMap;
 
-use ordered_hash_map::OrderedHashMap;
-
-use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Row, Square, SquareVec};
-use crate::position::coordinates::converters::{to_square_vec};
+use crate::position::coordinates::types_and_structs::Row;
 use crate::position::color::Color;
 use crate::position::coup::{Coup, CoupKind};
-use crate::position::pieces::{Piece, PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
+use crate::position::pieces::{PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
 use crate::position::board::types_and_structs::Board;
 use crate::position::basic_piece_moves::*;
 
 impl Board {
     fn update_castle_rights(& mut self) {
+            println!("      update castle rights");
        
         self.white_can_a_castle = self.can_castle(
             Color::White,
@@ -44,6 +42,8 @@ impl Board {
     }
 
     fn update_king_safety(&mut self) {
+        println!("      update_king_safety");
+
 
         for player_color in [Color::White, Color::Black] {
             let king_is_checked = self.is_checked(player_color);
@@ -56,6 +56,7 @@ impl Board {
     
     /// Indicates squares watched (values) by each square with a piece of the player with trait (key).
     pub fn update_watchers_sites_and_watched_squares(&mut self) {
+        println!("      update_watchers_sites_and_watched_squares");
         self.white_watchers_and_watched = HashMap::new();
         self.black_watchers_and_watched = HashMap::new();
         for (&square, &piece) in &self.map {
@@ -78,6 +79,8 @@ impl Board {
 
 
     pub fn update_possible_moves(&mut self) {
+
+        println!("      update_possible_moves");
         // Returns all possible moves (aka coups) for player to move.
         // The board infos should be up to date (use self.update_info()).
 
@@ -133,11 +136,11 @@ impl Board {
     }
 
     pub fn update_info(&mut self, level: usize) {
-
+        println!("      update_info lvl {level}");
         if level > 0 {
             self.update_watchers_sites_and_watched_squares();
-            self.update_castle_rights();
             if level > 1 {
+                self.update_castle_rights();
                 self.update_possible_moves();
                 self.update_king_safety();
             }

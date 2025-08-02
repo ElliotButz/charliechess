@@ -1,7 +1,6 @@
 use crate::position::color::Color;
 use crate::position::board::types_and_structs::Board;
 use crate::position::coordinates::converters::to_square_vec;
-use crate::position::coordinates::displayers::vec2str;
 use crate::position::coordinates::{
     types_and_structs::{Coords, CoordsVec, Square, SquareVec}};
 use crate::position::pieces::Piece;

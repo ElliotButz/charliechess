@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::position::{
     board::types_and_structs::Board, coordinates::types_and_structs::{Square,SquareVec}, pieces::{Piece, PieceKind::*}
 };

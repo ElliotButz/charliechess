@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-
-use crate::position::basic_piece_moves::*;
-use crate::{piece, square};
+use crate::square;
 use crate::position::color::Color;
 use crate::position::coordinates::converters::row_as_square_vec;
-use crate::position::coup::{Coup, CoupKind::{self, *}};
-use crate::position::coordinates::types_and_structs::{Column, Row, Square};
+use crate::position::coup::{Coup, CoupKind::*};
+use crate::position::coordinates::types_and_structs::{Column, Square};
 use crate::position::pieces::{Piece, PieceKind::*};
 use crate::position::board::types_and_structs::Board;
 
@@ -102,6 +99,7 @@ impl Board { // Editors
 
 
     pub fn execute(&mut self, coup: Coup, info_update_lvl: usize) {
+        println!("  Executing coup, info update lvl {info_update_lvl}");
         match coup.kind {
             Normal => {
                 self.move_piece(coup.start, coup.end);

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::position::{board::types_and_structs::Board, color::Color, coordinates::displayers::vec2str, coup::Coup, history::History};
+use crate::position::{board::types_and_structs::Board, color::Color, coup::Coup, history::History};
 
 pub mod board;
 pub mod color;
@@ -28,6 +28,7 @@ impl Position {
     } 
 
     pub fn update(&mut self, coup: Coup) -> Result<PositionState, PositionError> {
+        println!("Updating history");
         match self.legal_moves().contains(&coup) {
             true => { 
                 self.board.execute(coup, 2); 

@@ -1,12 +1,11 @@
 use ordered_hash_map::OrderedHashMap;
 
-use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Row, Square, SquareVec};
+use crate::position::coordinates::types_and_structs::{Coords, CoordsVec, Square, SquareVec};
 use crate::position::coordinates::converters::{to_square_vec};
 use crate::position::color::Color;
-use crate::position::coup::{Coup, CoupKind};
-use crate::position::pieces::{Piece, PieceKind::{Bishop, King, Queen, Tower, Pawn, Knight}};
+use crate::position::coup::Coup;
+use crate::position::pieces::{Piece, PieceKind::King};
 use crate::position::board::types_and_structs::Board;
-use crate::position::basic_piece_moves::{basic_moves_for_piece_at_square};
 
 impl Board { // Requesters
 
@@ -197,6 +196,7 @@ impl Board { // Requesters
 
 
     pub fn simulate_coup(&self, coup: Coup) -> Self {
+        println!("Simulating move");
         let mut simulated = self.clone();
         simulated.execute(coup, 1);
         simulated
