@@ -46,12 +46,12 @@ impl Piece {
 
 #[derive(Clone, Copy, Display, Eq, PartialEq, Debug, Hash)]
 pub enum PieceKind {
-    Queen,
-    Tower,
-    Bishop,
-    Knight,
-    Pawn,
-    King,
+    Queen  = 5,
+    Tower  = 4,
+    Bishop = 3,
+    Knight = 2,
+    Pawn   = 1,
+    King   = 0,
 }
 
 impl fmt::Display for Piece {

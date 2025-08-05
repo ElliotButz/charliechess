@@ -1,6 +1,9 @@
 extern crate num_derive;
 use std::env;
 use std::time::Instant;
+use burn::backend::wgpu::WgpuDevice;
+use burn::backend::Wgpu;
+use burn::tensor::Device;
 
 
 pub mod player;
@@ -11,6 +14,9 @@ pub mod DLPlayer;
 use crate::game::Game;
 use crate::player::structs_and_traits::Player;
 use crate::position::board::types_and_structs::Board;
+
+type Backend = Wgpu;
+
 fn main() {
 
     // this method needs to be inside main() method
@@ -22,11 +28,15 @@ fn main() {
     let p1 = Player::random();
     let p2 = Player::random();
     let mut game = Game::new(p1, p2 );
-    let outcome = game.cli_play(200, false);
+    let outcome = game.cli_play(8, false);
 
     let elapsed = now.elapsed();
 
     println!("Elapsed: {:.2?}", elapsed);
     println!("Result: {:?}\nFinal board:\n{} N turns:\n{}\ntime per turn: {}",
-    outcome.state(), outcome.board, game.position.history.n_turns(), elapsed.as_secs_f64()/(game.position.history.n_turns() as f64))
+    outcome.state(), outcome.board, game.position.history.n_turns(), elapsed.as_secs_f64()/(game.position.history.n_turns() as f64));
+
+    let device = WgpuDevice::default();
+    println!("{}",game.position.board.to_tensor::<Wgpu>(&device));
+    println!("{}", outcome.board);
 }
