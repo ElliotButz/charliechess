@@ -80,6 +80,13 @@ impl TryFrom <char> for Row {
 } 
 
 // (i8, i8) <> Coords <> Square
+
+impl From <Square> for (usize, usize) {
+    fn from(square: Square) -> Self {
+        (square.col as usize, square.row as usize)
+    }
+}
+
 impl From <Square> for Coords {
     fn from(square: Square) -> Self {
         Coords { col: square.col.into(), row: square.row.into() }

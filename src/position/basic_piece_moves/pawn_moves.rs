@@ -14,7 +14,7 @@ pub fn reachable_squares(board:&Board, start:Square, color:Color) -> (SquareVec,
     // This function does not take in account the fact that the pawn might be pined, since it's more efficient to calculate the reachable 
     // squares of the pieces that are not pinned only.
     let direction: i8 = color.as_direction();
-    let (start_colidx, start_rowidx) = start.into();
+    let (start_colidx, start_rowidx): (i8, i8) = start.into();
     let mut in_reach = SquareVec::with_capacity(4);
     let mut found_pieces: Vec<Piece> = Vec::with_capacity(3); // There are max 3 pieces that can block the movement of a pawn or get attacked by him.
     
