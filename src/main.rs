@@ -14,6 +14,7 @@ pub mod DLPlayer;
 use crate::game::Game;
 use crate::player::structs_and_traits::Player;
 use crate::position::board::types_and_structs::Board;
+use crate::position::color::Color;
 
 type Backend = Wgpu;
 
@@ -21,14 +22,12 @@ fn main() {
 
     // this method needs to be inside main() method
     unsafe {env::set_var("RUST_BACKTRACE", "1");}
-
-
     
     let now = Instant::now();
     let p1 = Player::random();
     let p2 = Player::random();
     let mut game = Game::new(p1, p2 );
-    let outcome = game.cli_play(8, false);
+    let outcome = game.cli_play(100, false);
 
     let elapsed = now.elapsed();
 
@@ -37,6 +36,8 @@ fn main() {
     outcome.state(), outcome.board, game.position.history.n_turns(), elapsed.as_secs_f64()/(game.position.history.n_turns() as f64));
 
     let device = WgpuDevice::default();
-    println!("{}",game.position.board.to_tensor::<Wgpu>(&device));
+    println!("{}", game.position.board.to_tensor_from_player_perspective::<Wgpu>(&device, Color::White));
+    println!("{}", game.position.board.to_tensor_from_player_perspective::<Wgpu>(&device, Color::Black));
+
     println!("{}", outcome.board);
 }
